@@ -14,3 +14,6 @@ package_existing.py
 refine_delivery.py
 publish_github.py
 report/~$*
+results/**/last_healthy.pt
+results/smoke/
+yolo26n.pt

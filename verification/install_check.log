@@ -1,0 +1,13 @@
+Obtaining file:///E:/deeplearn/yolo-master-ppe/YOLO-Master
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Would install ultralytics-8.4.101
+
+[notice] A new release of pip is available: 25.0.1 -> 26.3
+[notice] To update, run: E:\yolo_course\.venv\Scripts\python.exe -m pip install --upgrade pip

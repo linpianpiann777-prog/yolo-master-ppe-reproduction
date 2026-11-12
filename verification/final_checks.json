@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "report_pages": 30,
+  "dataset_images": 1416,
+  "formal_training_minutes": 143.77033333333333,
+  "ppe_test_models_reexecuted": 3,
+  "coco_images_recomputed": 5000,
+  "training_smoke_completed": true,
+  "demo_images_reexecuted": 141,
+  "demo_alert_images": 27,
+  "release_assets_digest_verified": true,
+  "report_sha256": "a64903042b3eb894999009189669728f68fcba0c446d00895443045842ebe7ae",
+  "pdf_sha256": "2373492ae2b5635ba272fb85519bf656f9500c5a7be545b74b61fea8de077686",
+  "rendering": "Word COM PDF export; PDFium render; all 30 pages visually reviewed. Bundled LibreOffice renderer unavailable."
+}

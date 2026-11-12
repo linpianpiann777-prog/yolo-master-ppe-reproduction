@@ -37,7 +37,7 @@
   "results/alarm/scores_YOLO-Master-v0.1-N_test.csv": "37877299afc55535fd91bdcb2fa957547e9800a9d66a7424f60a7c4e09a22942",
   "results/alarm/scores_YOLO-Master-v0.1-N_val.csv": "7cbc53aacb5b915b0027c6124b276a111579012e208755120df8fd7a44c55853",
   "results/coco/summary.csv": "4b7275055dc50cfe0f4e07ba21326ca1634f1f63e9714227fa4e738dbe930ffa",
-  "results/ppe/test_summary.csv": "c7905be413301de02ce76d061add2c57fe9c344bf772349295863f153c6318e5",
+  "results/ppe/test_summary.csv": "70da30193ed5d8fbbb9d024ec6525d78baa8280074f60431f0159a9697816c0d",
   "results/ablation/coco_dense/predictions.json": "3aa4dfffface8cd642405ae1453022ecca2ab604002a6f2e3903f07df0ed233f",
   "results/ablation/coco_sparse/predictions.json": "3aa4dfffface8cd642405ae1453022ecca2ab604002a6f2e3903f07df0ed233f",
   "results/coco/YOLO-Master-EsMoE-N/predictions.json": "3aa4dfffface8cd642405ae1453022ecca2ab604002a6f2e3903f07df0ed233f",
@@ -48,9 +48,6 @@
   "results/ppe/YOLO-Master-v0.1-N/results.csv": "625192a7bb000d3b4b7e6aeb194f3beb6dd52d3fd6e842ecd0219cf71267793d",
   "results/ppe/YOLO-Master-v0.1-N-clspw0.5/results.csv": "5a4b9199aa9344237d0612a69ed1d21bec97b2df1b915482ed3e08fcdf96151f",
   "results/ppe/YOLO-Master-EsMoE-N/weights/best.pt": "a578ee76b19f889322f9f46583e490d8ba94dd386f7b35593784554586ec0262",
-  "results/ppe/YOLO-Master-EsMoE-N/weights/last_healthy.pt": "4d0be6cd93071e29bde2e334bd95e3ee6168ab062765a27b78b1bf20ccf48bb8",
   "results/ppe/YOLO-Master-v0.1-N/weights/best.pt": "3b831170f6b859ebdb2264f50a81a33895ffca8bbeb4eea4310342525791ad07",
-  "results/ppe/YOLO-Master-v0.1-N/weights/last_healthy.pt": "0b8c88da1dc8b7372db88c7659db0486b901f4f4aac5a69efaeb24b55bd1eef5",
-  "results/ppe/YOLO-Master-v0.1-N-clspw0.5/weights/best.pt": "190eab6b1c5cf6ac6b1b295b7069a78e2ef08f2f4481b40b042eabecce46a6f6",
-  "results/ppe/YOLO-Master-v0.1-N-clspw0.5/weights/last_healthy.pt": "9eab7a15402344a1de2fa8ba49054c3ef3bf0cb6d44342bc018fa9138d18f009"
+  "results/ppe/YOLO-Master-v0.1-N-clspw0.5/weights/best.pt": "190eab6b1c5cf6ac6b1b295b7069a78e2ef08f2f4481b40b042eabecce46a6f6"
 }

@@ -1,0 +1,173 @@
+model YOLO-Master-v0.1-N, alarm threshold 0.13
+
+image 1/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1.jpeg: 640x640 1 helmet, 1 gloves, 1 vest, 1 Person, 19.0ms
+image 2/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image10.jpeg: 640x640 1 gloves, 3 vests, 3 bootss, 3 Persons, 22.5ms
+image 3/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1003.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 20.1ms
+image 4/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1007.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 16.5ms
+image 5/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1009.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 2 bootss, 1 Person, 18.0ms
+image 6/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1014.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.9ms
+image 7/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1019.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 3 goggless, 1 Person, 19.3ms
+image 8/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1023.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 22.6ms
+image 9/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1037.jpeg: 640x640 7 helmets, 5 glovess, 5 vests, 6 bootss, 5 Persons, 19.0ms
+image 10/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1065.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.1ms
+image 11/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1074.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.4ms
+image 12/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1076.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.7ms
+image 13/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1088.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.8ms
+image 14/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1089.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 20.2ms
+image 15/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image110.jpg: 640x640 4 helmets, 1 gloves, 3 vests, 1 boots, 3 Persons, 18.8ms
+image 16/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1111.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.6ms
+image 17/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1114.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.8ms
+image 18/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1120.jpg: 640x512 1 none, 1 Person, 3 no_helmets, 1 no_goggle, 90.6ms
+[ALERT] image1120.jpg: no_goggle 0.17, no_helmet 0.43
+image 19/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1125.jpg: 480x640 3 bootss, 2 nones, 1 Person, 80.9ms
+image 20/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1132.jpg: 640x640 3 nones, 1 Person, 2 no_helmets, 3 no_goggles, 2 no_glovess, 1 no_boots, 20.5ms
+[ALERT] image1132.jpg: no_boots 0.13, no_gloves 0.14, no_goggle 0.24, no_helmet 0.48
+image 21/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1133.jpg: 640x448 1 none, 1 Person, 4 no_helmets, 80.6ms
+[ALERT] image1133.jpg: no_helmet 0.53
+image 22/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1139.jpg: 640x448 1 none, 1 Person, 2 no_helmets, 3 no_glovess, 20.8ms
+[ALERT] image1139.jpg: no_gloves 0.22, no_helmet 0.79
+image 23/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1145.jpg: 448x640 1 helmet, 2 bootss, 7 nones, 6 Persons, 2 no_helmets, 2 no_bootss, 75.4ms
+[ALERT] image1145.jpg: no_boots 0.36, no_helmet 0.20
+image 24/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1152.jpg: 480x640 2 nones, 1 Person, 2 no_helmets, 1 no_gloves, 16.8ms
+[ALERT] image1152.jpg: no_gloves 0.20, no_helmet 0.59
+image 25/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image116.jpg: 640x640 4 helmets, 3 glovess, 4 vests, 1 boots, 4 Persons, 19.8ms
+image 26/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1178.jpg: 640x448 2 bootss, 1 none, 1 Person, 2 no_helmets, 1 no_goggle, 4 no_glovess, 19.7ms
+[ALERT] image1178.jpg: no_gloves 0.16, no_goggle 0.19, no_helmet 0.40
+image 27/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1205.jpg: 448x640 3 nones, 5 Persons, 9 no_helmets, 8 no_goggles, 7 no_glovess, 18.3ms
+[ALERT] image1205.jpg: no_gloves 0.64, no_goggle 0.18, no_helmet 0.49
+image 28/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image122.jpeg: 640x640 1 helmet, 1 vest, 1 goggles, 1 Person, 18.2ms
+image 29/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1229.jpg: 640x480 1 none, 1 Person, 1 no_helmet, 4 no_glovess, 75.8ms
+[ALERT] image1229.jpg: no_gloves 0.26, no_helmet 0.50
+image 30/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1231.jpg: 480x640 3 nones, 2 Persons, 2 no_helmets, 5 no_goggles, 5 no_glovess, 20.8ms
+[ALERT] image1231.jpg: no_gloves 0.55, no_goggle 0.29, no_helmet 0.75
+image 31/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1235.jpg: 640x480 3 bootss, 5 nones, 5 Persons, 6 no_helmets, 1 no_goggle, 7 no_glovess, 21.1ms
+[ALERT] image1235.jpg: no_gloves 0.54, no_goggle 0.15, no_helmet 0.31
+image 32/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1239.jpg: 448x640 2 bootss, 7 nones, 3 Persons, 4 no_helmets, 6 no_goggles, 5 no_glovess, 3 no_bootss, 20.5ms
+[ALERT] image1239.jpg: no_boots 0.19, no_gloves 0.38, no_goggle 0.24, no_helmet 0.26
+image 33/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1252.jpg: 480x640 1 none, 1 Person, 1 no_helmet, 1 no_gloves, 20.1ms
+[ALERT] image1252.jpg: no_gloves 0.13, no_helmet 0.63
+image 34/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1256.jpg: 640x480 13 bootss, 7 nones, 5 Persons, 3 no_helmets, 4 no_glovess, 20.5ms
+[ALERT] image1256.jpg: no_gloves 0.27, no_helmet 0.56
+image 35/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1264.jpg: 608x640 1 vest, 9 bootss, 4 nones, 6 Persons, 3 no_helmets, 1 no_gloves, 82.9ms
+[ALERT] image1264.jpg: no_gloves 0.22, no_helmet 0.30
+image 36/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1270.jpg: 640x640 2 nones, 4 Persons, 3 no_helmets, 4 no_glovess, 19.6ms
+[ALERT] image1270.jpg: no_gloves 0.27, no_helmet 0.59
+image 37/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1276.jpg: 640x448 1 none, 1 Person, 2 no_helmets, 2 no_goggles, 2 no_glovess, 20.3ms
+[ALERT] image1276.jpg: no_gloves 0.27, no_goggle 0.31, no_helmet 0.58
+image 38/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1292.jpg: 640x512 2 nones, 1 Person, 3 no_helmets, 20.0ms
+[ALERT] image1292.jpg: no_helmet 0.50
+image 39/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1293.jpg: 448x640 1 none, 1 Person, 1 no_helmet, 1 no_goggle, 18.5ms
+[ALERT] image1293.jpg: no_goggle 0.18, no_helmet 0.27
+image 40/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1306.jpg: 640x480 3 nones, 2 Persons, 5 no_helmets, 3 no_glovess, 17.4ms
+[ALERT] image1306.jpg: no_gloves 0.20, no_helmet 0.20
+image 41/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1330.jpg: 640x640 1 none, 1 Person, 2 no_helmets, 2 no_goggles, 20.7ms
+[ALERT] image1330.jpg: no_goggle 0.34, no_helmet 0.47
+image 42/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1331.jpg: 448x640 1 none, 1 Person, 1 no_helmet, 4 no_goggles, 2 no_glovess, 21.3ms
+[ALERT] image1331.jpg: no_gloves 0.28, no_goggle 0.18, no_helmet 0.21
+image 43/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1332.jpg: 640x448 1 none, 1 Person, 2 no_helmets, 1 no_goggle, 2 no_glovess, 20.7ms
+[ALERT] image1332.jpg: no_gloves 0.35, no_goggle 0.18, no_helmet 0.40
+image 44/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1344.jpg: 640x480 1 none, 1 Person, 5 no_helmets, 1 no_goggle, 20.6ms
+[ALERT] image1344.jpg: no_goggle 0.32, no_helmet 0.55
+image 45/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1354.jpg: 448x640 1 gloves, 4 nones, 5 Persons, 4 no_helmets, 7 no_goggles, 4 no_glovess, 16.8ms
+[ALERT] image1354.jpg: no_gloves 0.63, no_goggle 0.25, no_helmet 0.59
+image 46/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image140.jpg: 640x640 2 helmets, 2 vests, 2 Persons, 19.1ms
+image 47/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image1406.jpg: 448x640 1 none, 1 Person, 4 no_helmets, 5 no_goggles, 18.0ms
+[ALERT] image1406.jpg: no_goggle 0.23, no_helmet 0.35
+image 48/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image149.jpg: 640x640 4 helmets, 2 vests, 5 bootss, 2 nones, 3 Persons, 21.2ms
+image 49/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image150.jpg: 640x640 2 helmets, 2 glovess, 2 vests, 2 Persons, 18.3ms
+image 50/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image160.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 1 boots, 1 Person, 16.6ms
+image 51/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image161.jpg: 640x640 1 helmet, 1 vest, 1 none, 1 Person, 17.2ms
+image 52/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image167.jpg: 640x640 4 helmets, 5 vests, 9 bootss, 2 goggless, 4 Persons, 17.5ms
+image 53/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image168.jpg: 640x640 1 helmet, 1 vest, 1 Person, 19.3ms
+image 54/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image169.jpg: 640x640 1 helmet, 2 vests, 1 Person, 17.9ms
+image 55/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image180.jpg: 640x640 1 helmet, 1 vest, 1 Person, 19.0ms
+image 56/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image182.jpg: 640x640 12 helmets, 2 Persons, 20.3ms
+image 57/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image190.jpg: 640x640 1 helmet, 1 vest, 4 bootss, 5 nones, 1 Person, 21.1ms
+image 58/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image207.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 1 boots, 1 Person, 19.6ms
+image 59/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image225.jpg: 640x640 1 helmet, 1 vest, 1 Person, 19.1ms
+image 60/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image231.jpg: 640x640 1 helmet, 1 vest, 1 Person, 18.3ms
+image 61/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image241.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 19.2ms
+image 62/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image257.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 3 goggless, 1 Person, 19.5ms
+image 63/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image271.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 21.5ms
+image 64/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image287.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 1 boots, 1 Person, 20.5ms
+image 65/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image296.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 16.8ms
+image 66/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image324.jpg: 640x640 5 helmets, 6 glovess, 11 vests, 5 bootss, 7 Persons, 18.4ms
+image 67/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image345.jpg: 640x640 1 helmet, 1 vest, 1 boots, 6 nones, 1 Person, 19.3ms
+image 68/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image350.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.7ms
+image 69/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image361.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 3 bootss, 1 goggles, 1 Person, 20.8ms
+image 70/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image381.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 2 bootss, 1 goggles, 1 Person, 22.2ms
+image 71/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image389.jpg: 640x640 1 helmet, 4 glovess, 1 vest, 2 bootss, 1 Person, 17.9ms
+image 72/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image393.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 15.6ms
+image 73/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image40.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 Person, 19.1ms
+image 74/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image401.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.5ms
+image 75/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image423.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 17.6ms
+image 76/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image431.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 16.2ms
+image 77/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image441.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.3ms
+image 78/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image444.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.5ms
+image 79/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image450.jpg: 640x640 5 helmets, 7 vests, 8 Persons, 19.2ms
+image 80/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image459.jpg: 640x640 1 helmet, 1 vest, 1 boots, 1 none, 1 Person, 18.7ms
+image 81/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image460.jpg: 640x640 1 helmet, 3 glovess, 1 vest, 1 Person, 18.8ms
+image 82/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image462.jpg: 640x640 5 helmets, 1 gloves, 5 vests, 4 bootss, 7 Persons, 20.2ms
+image 83/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image470.jpeg: 640x640 2 glovess, 2 vests, 2 bootss, 1 none, 3 Persons, 19.2ms
+image 84/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image481.jpg: 640x640 3 helmets, 3 vests, 3 bootss, 4 nones, 3 Persons, 18.9ms
+image 85/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image484.jpg: 640x640 1 helmet, 1 vest, 1 Person, 18.3ms
+image 86/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image502.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.0ms
+image 87/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image517.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 18.0ms
+image 88/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image533.jpg: 640x640 3 helmets, 4 vests, 1 boots, 1 none, 3 Persons, 19.0ms
+image 89/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image535.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 2 Persons, 18.9ms
+image 90/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image536.jpg: 640x640 5 helmets, 1 gloves, 6 vests, 15 bootss, 9 Persons, 18.5ms
+image 91/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image537.jpg: 640x640 4 helmets, 5 vests, 6 bootss, 6 Persons, 20.3ms
+image 92/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image538.jpg: 640x640 4 helmets, 3 glovess, 5 vests, 9 bootss, 7 Persons, 18.0ms
+image 93/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image541.jpg: 640x640 3 helmets, 2 vests, 1 none, 2 Persons, 16.5ms
+image 94/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image548.jpg: 640x640 2 helmets, 3 vests, 1 none, 3 Persons, 1 no_helmet, 21.0ms
+[ALERT] image548.jpg: no_helmet 0.23
+image 95/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image550.jpg: 640x640 1 helmet, 1 vest, 1 Person, 18.5ms
+image 96/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image58.jpeg: 640x640 2 helmets, 2 glovess, 4 vests, 2 Persons, 17.5ms
+image 97/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image585.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.1ms
+image 98/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image6.jpeg: 640x640 2 helmets, 3 vests, 3 Persons, 20.7ms
+image 99/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image611.jpg: 640x640 5 helmets, 5 vests, 10 bootss, 5 Persons, 18.0ms
+image 100/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image612.jpg: 640x640 5 helmets, 2 glovess, 5 vests, 12 bootss, 5 Persons, 17.6ms
+image 101/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image616.jpg: 640x640 2 helmets, 3 vests, 3 bootss, 3 Persons, 17.3ms
+image 102/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image619.jpeg: 640x640 2 helmets, 2 glovess, 3 vests, 1 boots, 2 Persons, 17.9ms
+image 103/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image63.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.1ms
+image 104/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image633.jpg: 640x640 2 glovess, 1 vest, 1 Person, 19.4ms
+image 105/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image694.jpeg: 640x640 1 helmet, 1 gloves, 2 vests, 1 none, 2 Persons, 17.8ms
+image 106/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image696.jpg: 640x640 2 helmets, 2 vests, 2 bootss, 1 none, 3 Persons, 18.1ms
+image 107/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image70.jpeg: 640x640 1 helmet, 2 glovess, 2 vests, 1 none, 1 Person, 19.7ms
+image 108/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image700.jpeg: 640x640 1 helmet, 1 vest, 1 none, 1 Person, 22.7ms
+image 109/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image708.jpg: 640x640 2 glovess, 1 vest, 2 bootss, 1 Person, 17.2ms
+image 110/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image714.jpeg: 640x640 1 vest, 2 nones, 1 Person, 18.9ms
+image 111/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image718.jpg: 640x640 1 helmet, 1 vest, 1 Person, 16.6ms
+image 112/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image722.jpeg: 640x640 1 helmet, 4 glovess, 3 vests, 2 Persons, 19.5ms
+image 113/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image739.jpeg: 640x640 3 helmets, 2 glovess, 1 vest, 2 Persons, 18.8ms
+image 114/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image758.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 1 Person, 16.4ms
+image 115/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image772.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 Person, 16.9ms
+image 116/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image779.jpg: 640x640 2 glovess, 2 vests, 6 bootss, 1 Person, 26.3ms
+image 117/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image787.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 2 bootss, 1 Person, 20.1ms
+image 118/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image796.jpg: 640x640 15 helmets, 8 vests, 4 bootss, 3 nones, 11 Persons, 19.4ms
+image 119/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image805.jpg: 640x640 2 helmets, 1 gloves, 1 boots, 4 Persons, 19.6ms
+image 120/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image810.jpg: 640x640 1 helmet, 1 gloves, 1 vest, 2 bootss, 1 Person, 16.6ms
+image 121/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image825.jpg: 640x640 1 helmet, 1 vest, 18.9ms
+image 122/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image834.jpg: 640x640 1 helmet, 1 vest, 1 Person, 16.4ms
+image 123/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image846.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 Person, 19.5ms
+image 124/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image860.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.9ms
+image 125/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image884.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 18.2ms
+image 126/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image905.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 17.6ms
+image 127/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image910.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 20.2ms
+image 128/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image913.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.1ms
+image 129/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image921.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.4ms
+image 130/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image922.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.5ms
+image 131/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image923.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 19.5ms
+image 132/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image927.jpg: 640x640 1 helmet, 3 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.7ms
+image 133/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image934.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.8ms
+image 134/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image935.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 20.3ms
+image 135/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image943.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 2 goggless, 1 Person, 17.2ms
+image 136/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image956.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 3 bootss, 2 goggless, 1 Person, 17.1ms
+image 137/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image965.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 18.0ms
+image 138/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image979.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 16.9ms
+image 139/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image98.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 17.9ms
+image 140/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image987.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 20.4ms
+image 141/141 E:\deeplearn\yolo-master-ppe\datasets\construction-ppe\images\test\image999.jpg: 640x640 1 helmet, 2 glovess, 1 vest, 2 bootss, 1 goggles, 1 Person, 19.4ms
+Speed: 1.5ms preprocess, 21.6ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+Results saved to [1mE:\deeplearn\yolo-master-ppe\results\demo[0m
+frames with violations: 27; detections: {'vest': 204, 'helmet': 199, 'Person': 272, 'gloves': 165, 'boots': 264, 'goggles': 66, 'none': 99, 'no_helmet': 79, 'no_goggle': 48, 'no_gloves': 61, 'no_boots': 6}

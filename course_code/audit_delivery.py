@@ -54,7 +54,7 @@ def main():
     evidence = {}
     for folder in ('logs','weights','results'):
         for p in (ROOT/folder).rglob('*'):
-            if p.is_file() and p.suffix in {'.pt','.csv','.json','.log'}:
+            if p.is_file() and 'smoke' not in p.parts and p.name not in {'last_healthy.pt','last.pt'} and p.suffix in {'.pt','.csv','.json','.log'}:
                 evidence[p.relative_to(ROOT).as_posix()] = sha(p)
     (out/'evidence_sha256.json').write_text(json.dumps(evidence,indent=2),encoding='utf-8')
     report = {'python':platform.python_version(),'dataset':stats,'exact_split_overlap':overlaps,

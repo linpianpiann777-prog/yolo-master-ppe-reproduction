@@ -164,9 +164,9 @@ const cover = [
   new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "课 程 设 计", font: HEI, size: 56, bold: true })] }),
   new Paragraph({ spacing: { before: 700 } }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
-    children: [new TextRun({ text: "Reproducing YOLO-Master for PPE Compliance", font: "Times New Roman", size: 36, bold: true })] }),
+    style: "Title", children: [new TextRun({ text: "深度学习在施工现场", font: HEI, color: "000000", size: 36, bold: true })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
-    children: [new TextRun({ text: "Detection on Construction Sites", font: "Times New Roman", size: 36, bold: true })] }),
+    children: [new TextRun({ text: "个人防护装备检测场景的应用", font: HEI, size: 36, bold: true })] }),
   new Paragraph({ spacing: { before: 1100 } }),
   ...["课程名称", "学　　院", "专　　业", "班　　级", "学生姓名", "学　　号", "指导教师"].map(coverLine),
   new Paragraph({ spacing: { before: 600 } }),
@@ -185,7 +185,7 @@ const abstract = [
 const toc = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, pageBreakBefore: true,
     children: [new TextRun({ text: "目　录", font: HEI, size: H1_SIZE, bold: true })] }),
-  new TableOfContents("目录", { hyperlink: true, headingStyleRange: "1-3" }),
+  new TableOfContents("目录", { hyperlink: true, headingStyleRange: "1-2" }),
 ];
 
 // ------------------------------------------------------------------ chapter 1
