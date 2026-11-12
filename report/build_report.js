@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell, WidthType, BorderStyle,
-  AlignmentType, HeadingLevel, TableOfContents, Header, Footer, PageNumber, LevelFormat, VerticalAlign, SectionType,
+  AlignmentType, HeadingLevel, TableOfContents, Header, Footer, PageNumber, LevelFormat, VerticalAlign, SectionType, NumberFormat,
 } = require("docx");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -74,8 +74,8 @@ const PPE_POS = ["helmet", "gloves", "vest", "boots", "goggles"];
 const mean = (r, ks) => (ks.reduce((s, k) => s + Number(r[`AP50_${k}`]), 0) / ks.length).toFixed(1);
 
 // ------------------------------------------------------------------ styling helpers
-const SONG = { ascii: "Times New Roman", hAnsi: "Times New Roman", eastAsia: "宋体", cs: "Times New Roman" };
-const HEI = { ascii: "Times New Roman", hAnsi: "Times New Roman", eastAsia: "黑体", cs: "Times New Roman" };
+const SONG = { ascii: "宋体", hAnsi: "宋体", eastAsia: "宋体", cs: "宋体" };
+const HEI = SONG;
 // Font sizes (half-points): 大标题 四号, 小标题 小四, 正文 五号.
 const H1_SIZE = 28;
 const H2_SIZE = 24;
@@ -84,7 +84,7 @@ const SMALL = 21;
 const INDENT = 420;
 const W = 9070; // A4 text width in DXA with 2.5 cm margins
 
-const t = (text, o = {}) => new TextRun({ text, font: SONG, size: BODY, ...o });
+const t = (text, o = {}) => new TextRun({ text, font: SONG, size: BODY, color: "000000", ...o });
 function runs(str, o = {}) {
   return str.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map((s) =>
     s.startsWith("**") ? t(s.slice(2, -2), { bold: true, ...o }) : t(s, o));
@@ -100,7 +100,7 @@ const numList = (items) => { const ref = `n${numRef++}`; NUM_REFS.push(ref);
   return items.map((s) => new Paragraph({ children: runs(s), numbering: { reference: ref, level: 0 }, spacing: { line: 360 } })); };
 const NUM_REFS = [];
 const formula = (str) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, before: 60, after: 60 },
-  children: [new TextRun({ text: str, font: { ascii: "Cambria Math", hAnsi: "Cambria Math", eastAsia: "宋体" }, size: BODY })] });
+  children: [new TextRun({ text: str, font: SONG, size: BODY })] });
 const caption = (s) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 60, after: 200 }, keepLines: true,
   children: [new TextRun({ text: s, font: HEI, size: SMALL })] });
 const tableCaption = (s) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 200, after: 60 }, keepNext: true,
@@ -157,30 +157,39 @@ function table(header, rows, widths) {
 const spaceAfterTables = (items) => items.flatMap((x) => (x instanceof Table ? [x, new Paragraph({ spacing: { before: 0, after: 120, line: 240 } })] : [x]));
 
 // ------------------------------------------------------------------ cover
-const coverLine = (label) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 520 },
-  children: [new TextRun({ text: `${label}：`, font: HEI, size: 28 }), new TextRun({ text: "_".repeat(26), font: SONG, size: 28 })] });
+// The reference cover has a centered title and five aligned underlined fields.
+// Personal fields intentionally remain blank; reference identity is not copied.
+const coverCell = (text, width, bottom = false) => new TableCell({
+  width: { size: width, type: WidthType.DXA },
+  borders: { top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
+    bottom: { style: bottom ? BorderStyle.SINGLE : BorderStyle.NONE, size: bottom ? 4 : 0, color: "000000" } },
+  verticalAlign: VerticalAlign.CENTER, margins: { top: 160, bottom: 160, left: 100, right: 100 },
+  children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, before: 0, after: 0 },
+    children: [new TextRun({ text, font: SONG, size: BODY, color: "000000", bold: true })] })],
+});
 const cover = [
-  new Paragraph({ spacing: { before: 1000 } }),
-  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "课 程 设 计", font: HEI, size: 56, bold: true })] }),
-  new Paragraph({ spacing: { before: 700 } }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
-    style: "Title", children: [new TextRun({ text: "深度学习在施工现场", font: HEI, color: "000000", size: 36, bold: true })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
-    children: [new TextRun({ text: "个人防护装备检测场景的应用", font: HEI, size: 36, bold: true })] }),
-  new Paragraph({ spacing: { before: 1100 } }),
-  ...["课程名称", "学　　院", "专　　业", "班　　级", "学生姓名", "学　　号", "指导教师"].map(coverLine),
-  new Paragraph({ spacing: { before: 600 } }),
-  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "2026 年 11 月", font: SONG, size: 28 })] }),
+  new Paragraph({ spacing: { before: 1000, after: 0, line: 1 }, children: [] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, style: "Title", spacing: { line: 480, before: 0, after: 0 },
+    children: [new TextRun({ text: "深度学习在施工现场个人防护装备", font: SONG, size: H1_SIZE, color: "000000", bold: true })] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480, before: 0, after: 0 },
+    children: [new TextRun({ text: "检测场景的应用课程设计报告", font: SONG, size: H1_SIZE, color: "000000", bold: true })] }),
+  new Paragraph({ spacing: { before: 5600, after: 0, line: 1 }, children: [] }),
+  new Table({ width: { size: 6800, type: WidthType.DXA }, columnWidths: [2200, 4600], alignment: AlignmentType.CENTER,
+    borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE },
+      right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+    rows: [["课程名称", "神经网络与深度学习"], ["年    级", "                    "], ["班    级", "                    "],
+      ["学    号", "                    "], ["姓    名", "                    "]].map(([label, value]) =>
+      new TableRow({ cantSplit: true, children: [coverCell(label, 2200), coverCell(value, 4600, true)] })) }),
 ];
 
 // ------------------------------------------------------------------ abstract + TOC
 const abstract = [
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: "摘　要", font: HEI, size: H1_SIZE, bold: true })] }),
-  P("建筑施工现场的个人防护装备（PPE）佩戴检查目前主要依赖人工巡查，存在覆盖范围有限、容易漏检、无法全天候监督等问题。本文以 CVPR 2026 论文 YOLO-Master 为基础，研究如何把一个最新的实时检测模型可靠地迁移到施工现场的 PPE 合规检测中。"),
-  P(`首先，在单张 RTX 4060 Laptop 上使用官方代码与官方权重，按原论文的评估协议在完整的 COCO val2017（5000 张）上复现了原论文指标：YOLO-Master-EsMoE-N 与 YOLO-Master-v0.1-N 的 COCO AP 分别为 **${f1(cocoE.AP)}%** 和 **${f1(cocoV.AP)}%**，均达到或略高于原论文公布的 42.4%。`),
-  P(`其次，针对施工场景中“逐框检测结果不能直接作为告警”“MoE 模型迁移后的推理方式存在隐患”“违规样本稀少”三个痛点，本文在官方默认方案基础上设计了图像级违规告警与验证集阈值选择方法，对 ES-MoE 稀疏推理的一致性进行了验证，并尝试了类别频率加权损失。最终模型在独立测试集上取得 mAP50 **${f1(T.mAP50)}%**；与官方默认的固定阈值相比，本文告警方案的召回率由 ${f1(aOff.recall)}% 提高到 **${f1(aOurs.recall)}%**、F1 由 ${f1(aOff.F1)}% 提高到 **${f1(aOurs.F1)}%**；在微调后的 EsMoE-N 上启用稀疏推理精度不变、推理时间减少约 ${speedup()}%。类别加权在本数据集上没有带来提升，本文分析了其原因。`),
-  P("最后，本文分析了 MoE 稀疏推理、混合精度数值稳定性、“缺失类”目标可学习性等原理性问题，并对后续改进方向进行了展望。"),
-  new Paragraph({ spacing: { before: 240, line: 360 }, children: [t("关键词：", { bold: true, font: HEI }), t("目标检测；YOLO-Master；混合专家模型；施工安全；个人防护装备；违规告警")] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 240 }, children: [new TextRun({ text: "摘  要", font: SONG, size: H1_SIZE, color: "000000", bold: true })] }),
+  P("针对施工现场个人防护装备（PPE）人工巡查覆盖有限、违规样本稀少以及逐框检测结果难以直接转为告警的问题，本文选用 YOLO-Master，开展官方权重评估复现与新场景迁移实验。采用官方代码和发布权重，在完整 COCO val2017 的 5000 张图像上评估，并以 pycocotools 重新计算指标。"),
+  P(`评估结果显示，YOLO-Master-EsMoE-N 与 YOLO-Master-v0.1-N 的 COCO AP 分别为 ${f1(cocoE.AP)}% 和 ${f1(cocoV.AP)}%。随后保留 Construction-PPE 的官方训练、验证和测试划分，对两类 Nano 模型进行迁移，并设置类别频率加权对照。三个正式实验累计训练时间为 143.77 分钟。最终按验证集选择的模型在独立测试集上取得 mAP50 ${f1(T.mAP50)}%、mAP50–95 ${f1(T["mAP50-95"])}%。`),
+  P(`应用环节使用验证集选择图像级告警阈值。相对于固定阈值 0.25，测试集告警召回率由 ${f1(aOff.recall)}% 提高到 ${f1(aOurs.recall)}%，F1 由 ${f1(aOff.F1)}% 提高到 ${f1(aOurs.F1)}%；类别加权未改善整体检测精度。实验同时分析了稀疏路由、混合精度稳定性与缺失装备类别的可学习性。`),
+  P("本项目完成官方权重的精度评估复现和新场景迁移，未进行 COCO 从头训练，也未验证原文 TensorRT 延迟。真实图像、标注、训练日志、权重和评估输出随项目保存，支持复核与复现。"),
+  new Paragraph({ spacing: { before: 160, line: 360 }, children: [t("关键词：", { bold: true }), t("目标检测；YOLO-Master；混合专家模型；施工安全；个人防护装备；违规告警")] }),
 ];
 const toc = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, pageBreakBefore: true,
@@ -501,7 +510,7 @@ const appendix = [
 ];
 
 // ------------------------------------------------------------------ document
-const body = [...abstract, ...toc, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...refSection, ...appendix];
+const body = [...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...refSection, ...appendix];
 const numCfg = (ref) => ({ reference: ref, levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "(%1)", alignment: AlignmentType.LEFT,
   style: { paragraph: { indent: { left: 840, hanging: 420 } } } }] });
 const margin = { top: 1418, bottom: 1418, left: 1418, right: 1418 };
@@ -509,14 +518,18 @@ const page = { size: { width: 11906, height: 16838 }, margin };
 const doc = new Document({
   creator: "Course Design", title: TITLE, features: { updateFields: true },
   styles: {
-    default: { document: { run: { font: SONG, size: BODY } } },
+    default: { document: { run: { font: SONG, size: BODY, color: "000000" } } },
+    characterStyles: [{ id: "Hyperlink", name: "Hyperlink", basedOn: "DefaultParagraphFont", run: { font: SONG, color: "000000", size: BODY, underline: { type: "none" } } }],
     paragraphStyles: [
+      { id: "Title", name: "Title", basedOn: "Normal", run: { font: SONG, size: H1_SIZE, color: "000000", bold: true } },
+      { id: "TOC1", name: "toc 1", basedOn: "Normal", run: { font: SONG, size: BODY, color: "000000" } },
+      { id: "TOC2", name: "toc 2", basedOn: "Normal", run: { font: SONG, size: BODY, color: "000000" } },
       { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { font: HEI, size: H1_SIZE, bold: true }, paragraph: { alignment: AlignmentType.CENTER, spacing: { before: 240, after: 300 }, keepNext: true, outlineLevel: 0 } },
+        run: { font: SONG, size: H1_SIZE, color: "000000", bold: true }, paragraph: { alignment: AlignmentType.CENTER, spacing: { before: 240, after: 300 }, keepNext: true, outlineLevel: 0 } },
       { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { font: HEI, size: H2_SIZE, bold: true }, paragraph: { spacing: { before: 240, after: 120 }, keepNext: true, outlineLevel: 1 } },
+        run: { font: SONG, size: H2_SIZE, color: "000000", bold: true }, paragraph: { spacing: { before: 240, after: 120 }, keepNext: true, outlineLevel: 1 } },
       { id: "Heading3", name: "Heading 3", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { font: HEI, size: H2_SIZE, bold: false }, paragraph: { spacing: { before: 160, after: 80 }, keepNext: true, outlineLevel: 2 } },
+        run: { font: SONG, size: H2_SIZE, color: "000000", bold: false }, paragraph: { spacing: { before: 160, after: 80 }, keepNext: true, outlineLevel: 2 } },
     ],
   },
   numbering: { config: [
@@ -527,12 +540,17 @@ const doc = new Document({
   sections: [
     { properties: { page }, children: cover },
     {
-      properties: { type: SectionType.NEXT_PAGE, page: { ...page, pageNumbers: { start: 1 } } },
-      headers: { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
-        border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 1 } },
-        children: [new TextRun({ text: TITLE, font: SONG, size: 18 })] })] }) },
+      properties: { type: SectionType.NEXT_PAGE, page: { ...page, pageNumbers: { start: 1, formatType: NumberFormat.UPPER_ROMAN } } },
+      headers: { default: new Header({ children: [new Paragraph("")] }) },
       footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
-        children: [new TextRun({ children: [PageNumber.CURRENT], font: SONG, size: 18 })] })] }) },
+        children: [new TextRun({ children: [PageNumber.CURRENT], font: SONG, size: BODY, color: "000000" })] })] }) },
+      children: [...abstract, ...toc],
+    },
+    {
+      properties: { type: SectionType.NEXT_PAGE, page: { ...page, pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL } } },
+      headers: { default: new Header({ children: [new Paragraph("")] }) },
+      footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
+        children: [new TextRun({ children: [PageNumber.CURRENT], font: SONG, size: BODY, color: "000000" })] })] }) },
       children: spaceAfterTables(body),
     },
   ],

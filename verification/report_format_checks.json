@@ -1,0 +1,21 @@
+{
+  "font": "宋体",
+  "text_color": "000000",
+  "heading_1_pt": 14,
+  "heading_2_3_pt": 12,
+  "body_pt": 10.5,
+  "prose_first_line_indent_twips": 420,
+  "indented_paragraphs": 101,
+  "three_line_data_tables": 8,
+  "cover_form_preserved": true,
+  "new_cross_reference_links": 41,
+  "total_internal_links": 79,
+  "bookmark_targets": {
+    "figure": 23,
+    "table": 8,
+    "section": 41,
+    "chapter": 7,
+    "reference": 13
+  },
+  "all_internal_destinations_valid": true
+}
