@@ -1,6 +1,6 @@
 """Step 5: build every report figure from the saved results (no GPU needed).
 
-Outputs print-ready PNG/JPG (white background, 200 dpi) to report/figures/. Figures whose input
+Outputs print-ready PNG/JPG (white background, 200 dpi) to figures/. Figures whose input
 results do not exist yet are skipped with a message.
 
 Usage:
@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "report" / "figures"
+OUT = ROOT / "figures"
 PPE = ROOT / "datasets" / "construction-ppe"
 RES = ROOT / "results"
 RUNS = RES / "ppe"

@@ -5,8 +5,8 @@
     "url": "https://github.com/linpianpiann777-prog/yolo-master-ppe-reproduction/releases/download/v1.0/construction-ppe-dataset.zip"
   },
   "coco-predictions-evidence.zip": {
-    "bytes": 79455489,
-    "sha256": "3097f0bd4c228a282b73f2b20e020b5d9f37058ffd4d0ac1c9e4a096ca2a4a93",
+    "bytes": 70073744,
+    "sha256": "14f72fe482bc0a611cd0e0c03c2015e44223265c0c44ab7ab28986fb2836d183",
     "url": "https://github.com/linpianpiann777-prog/yolo-master-ppe-reproduction/releases/download/v1.0/coco-predictions-evidence.zip"
   }
 }

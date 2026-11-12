@@ -17,3 +17,12 @@ report/~$*
 results/**/last_healthy.pt
 results/smoke/
 yolo26n.pt
+
+# Private local writing and layout files
+report/
+verification/report*
+verification/opening_checks.json
+verification/final_checks.json
+verification/finalize.py
+verification/render_pdf_qa.py
+cleanup_public.py
