@@ -158,27 +158,26 @@ const spaceAfterTables = (items) => items.flatMap((x) => (x instanceof Table ? [
 
 // ------------------------------------------------------------------ cover
 // The reference cover has a centered title and five aligned underlined fields.
-// Personal fields intentionally remain blank; reference identity is not copied.
+// Cover follows the supplied reference; personal details are supplied by the student.
 const coverCell = (text, width, bottom = false) => new TableCell({
   width: { size: width, type: WidthType.DXA },
   borders: { top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
     bottom: { style: bottom ? BorderStyle.SINGLE : BorderStyle.NONE, size: bottom ? 4 : 0, color: "000000" } },
-  verticalAlign: VerticalAlign.CENTER, margins: { top: 160, bottom: 160, left: 100, right: 100 },
+  verticalAlign: VerticalAlign.CENTER, margins: { top: 220, bottom: 220, left: 100, right: 100 },
   children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, before: 0, after: 0 },
-    children: [new TextRun({ text, font: SONG, size: BODY, color: "000000", bold: true })] })],
+    children: [new TextRun({ text, font: SONG, size: 28, color: "000000", bold: true })] })],
 });
 const cover = [
-  new Paragraph({ spacing: { before: 1000, after: 0, line: 1 }, children: [] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, style: "Title", spacing: { line: 480, before: 0, after: 0 },
-    children: [new TextRun({ text: "深度学习在施工现场个人防护装备", font: SONG, size: H1_SIZE, color: "000000", bold: true })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480, before: 0, after: 0 },
-    children: [new TextRun({ text: "检测场景的应用课程设计报告", font: SONG, size: H1_SIZE, color: "000000", bold: true })] }),
-  new Paragraph({ spacing: { before: 5600, after: 0, line: 1 }, children: [] }),
+  new Paragraph({ spacing: { before: 1800, after: 0, line: 1 }, children: [] }),
+  ...["深度学习在施工现场", "个人防护装备检测场景", "的应用实验报告"].map((line, i) =>
+    new Paragraph({ alignment: AlignmentType.CENTER, ...(i === 0 ? { style: "Title" } : {}), spacing: { line: 1090, lineRule: "exact", before: 0, after: 0 },
+      children: [new TextRun({ text: line, font: SONG, size: 84, color: "000000", bold: true })] })),
+  new Paragraph({ spacing: { before: 3000, after: 0, line: 1 }, children: [] }),
   new Table({ width: { size: 6800, type: WidthType.DXA }, columnWidths: [2200, 4600], alignment: AlignmentType.CENTER,
     borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE },
       right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
-    rows: [["课程名称", "神经网络与深度学习"], ["年    级", "                    "], ["班    级", "                    "],
-      ["学    号", "                    "], ["姓    名", "                    "]].map(([label, value]) =>
+    rows: [["课程名称", "神经网络与深度学习"], ["年    级", "24级"], ["班    级", "智科一班"],
+      ["学    号", "2404120128"], ["姓    名", "刘炘扬"]].map(([label, value]) =>
       new TableRow({ cantSplit: true, children: [coverCell(label, 2200), coverCell(value, 4600, true)] })) }),
 ];
 

@@ -22,7 +22,7 @@
 
 ## 文件与下载
 
-- [课程报告 Word](report/YOLO-Master_PPE_Course_Design.docx)；[打印版 PDF](report/YOLO-Master_PPE_Course_Design.pdf)。封面姓名、学号、学院等留空，提交前填写。
+- [课程报告 Word](report/YOLO-Master_PPE_Course_Design.docx)；[打印版 PDF](report/YOLO-Master_PPE_Course_Design.pdf)。封面已按所提供课程模板填写：24级、智科一班、刘炘扬、学号2404120128。
 - [数据与实验数据 Release](https://github.com/linpianpiann777-prog/yolo-master-ppe-reproduction/releases/tag/v1.0)：`construction-ppe-dataset.zip` 含全部 1416 张图像与原始标注；`coco-predictions-evidence.zip` 含 COCO 全量预测、路由消融与复核证据。
 - `course_code/`：训练、测试、COCO 官方评估、路由消融、告警分析、预测演示、数据下载及校验。
 - `YOLO-Master/`：官方实现中的完整 `ultralytics/` 包及构建/许可文件，固定上游 commit `c73e53716bf13fa5344c66f7b77cde2ffde051fd`，非完整上游开发仓库；原始来源 https://github.com/Tencent/YOLO-Master 。
@@ -88,6 +88,6 @@ COCO 验证图像准备完成后：
 
 ## 报告与许可
 
-报告包含场景、原理、环境、指标对比、改进与负结果、路由消融、告警评价、限制和参考文献。打印 PDF 为 Word 导出，电子稿可编辑。重建需 Node.js 的 `docx` 包并运行 `node report/build_report.js`；Windows Word 可使用 `report/export_pdf.ps1 -PythonExe <含lxml的Python解释器>` 更新目录、统一排版和交叉引用后导出 PDF。`report/final_format_report.py` 将正文设为宋体黑色，主标题14磅、子标题12磅、正文10.5磅，首行缩进两字符；数据表为三线表，图表和章节引用支持内部跳转。封面按课程范例设置，摘要与目录使用罗马页码，正文从1重新编号。
+报告包含场景、原理、环境、指标对比、改进与负结果、路由消融、告警评价、限制和参考文献。打印 PDF 为 Word 导出，电子稿可编辑。重建需 Node.js 的 `docx` 包并运行 `node report/build_report.js`；Windows Word 可使用 `report/export_pdf.ps1 -PythonExe <含lxml的Python解释器>` 更新目录、统一排版和交叉引用后导出 PDF。`report/final_format_report.py` 将正文设为宋体黑色，主标题14磅、子标题12磅、正文10.5磅，首行缩进两字符；数据表为三线表，图表和章节引用支持内部跳转。封面按课程范例设置，首页题目42磅、课程信息14磅，摘要与目录使用罗马页码，正文从1重新编号。
 
 本项目遵循 **AGPL-3.0**；上游源码、权重和数据版权归原作者。根目录 `LICENSE` 及 `THIRD_PARTY.md` 列明来源。不声称论文原始架构或公开数据集为本人原创，不声称少数类检测已达到实际安全生产部署要求。

@@ -33,7 +33,7 @@ paras=root.findall('.//w:p',N);body=root.find(q('body'));prose=0
 cover=True
 for p in paras:
  t=text(p).strip();pr=child(p,'pPr');sid=pr.find(q('pStyle'));name=style_names.get(sid.get(q('val')),'') if sid is not None else ''
- size=28 if name in ['heading 1','title'] or t in ['摘  要','目　录','检测场景的应用课程设计报告'] else 24 if name in ['heading 2','heading 3'] else 21
+ size=(84 if cover and t in ['深度学习在施工现场','个人防护装备检测场景','的应用实验报告'] else 28 if cover and t else 28 if name in ['heading 1','title'] or t in ['摘  要','目　录'] else 24 if name in ['heading 2','heading 3'] else 21)
  for run in p.findall('.//w:r',N):fmt(child(run,'rPr'),size)
  if not cover and t and p.getparent() is body:
   centered=(pr.find(q('jc')) is not None and pr.find(q('jc')).get(q('val'))=='center')
@@ -41,6 +41,20 @@ for p in paras:
   if not special:
    ind=child(pr,'ind');ind.attrib.pop(q('hanging'),None);ind.attrib.pop(q('firstLineChars'),None);ind.set(q('firstLine'),'420');prose+=1
  if pr.find(q('sectPr')) is not None:cover=False
+# Right-aligned page numbers use real tab stops with dot leaders, not typed dots.
+toc_count=0
+for p in paras:
+ pr=p.find(q('pPr'));sid=pr.find(q('pStyle')) if pr is not None else None
+ name=style_names.get(sid.get(q('val')),'') if sid is not None else ''
+ if name.startswith('toc') or name.startswith('目录'):
+  tabs=child(pr,'tabs')
+  for old in list(tabs):tabs.remove(old)
+  tab=E.SubElement(tabs,q('tab'));tab.set(q('val'),'right');tab.set(q('leader'),'dot');tab.set(q('pos'),'9070');toc_count+=1
+for st in styles.findall(q('style')):
+ if style_names[st.get(q('styleId'))].startswith(('toc','目录')):
+  tabs=child(child(st,'pPr'),'tabs')
+  for old in list(tabs):tabs.remove(old)
+  tab=E.SubElement(tabs,q('tab'));tab.set(q('val'),'right');tab.set(q('leader'),'dot');tab.set(q('pos'),'9070')
 # All data tables are three-line tables; the first table is the reference cover form.
 def edge(borders,name,kind='nil',size=0):
  b=child(borders,name);b.attrib.clear();b.set(q('val'),kind)
@@ -140,5 +154,5 @@ for p in paras:
   rp=run.find(q('rPr'));assert rp.find(q('color')).get(q('val'))=='000000';assert rp.find(q('rFonts')).get(q('eastAsia'))=='宋体'
 course_links=sum(x.get(q('anchor'),'').startswith('Course_') for x in internal)
 assert course_links>=41 and len(alltables)>5
-result={'font':'宋体','text_color':'000000','heading_1_pt':14,'heading_2_3_pt':12,'body_pt':10.5,'prose_first_line_indent_twips':420,'indented_paragraphs':prose,'three_line_data_tables':len(alltables)-1,'cover_form_preserved':True,'new_cross_reference_links':course_links,'total_internal_links':len(internal),'bookmark_targets':counts,'all_internal_destinations_valid':True}
+result={'toc_dot_leader_entries':toc_count,'cover_title_pt':42,'cover_fields_pt':14,'font':'宋体','text_color':'000000','heading_1_pt':14,'heading_2_3_pt':12,'body_pt':10.5,'prose_first_line_indent_twips':420,'indented_paragraphs':prose,'three_line_data_tables':len(alltables)-1,'cover_form_preserved':True,'new_cross_reference_links':course_links,'total_internal_links':len(internal),'bookmark_targets':counts,'all_internal_destinations_valid':True}
 (R/'verification/report_format_checks.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(result,ensure_ascii=True))

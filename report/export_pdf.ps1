@@ -1,4 +1,4 @@
-# Refresh the TOC, apply final typography and links, then export the print PDF.
+﻿# Refresh the TOC, apply final typography and links, then export the print PDF.
 param([string]$PythonExe = "python")
 $ReportDocx = Join-Path $PSScriptRoot 'YOLO-Master_PPE_Course_Design.docx'
 $ReportPdf = [IO.Path]::ChangeExtension($ReportDocx,'.pdf')
@@ -8,7 +8,11 @@ $ReportWord.DisplayAlerts = 0
 try {
     $ReportDocument = $ReportWord.Documents.Open($ReportDocx)
     $ReportDocument.Repaginate()
-    foreach ($ReportToc in $ReportDocument.TablesOfContents) { $ReportToc.Update() }
+    foreach ($ReportToc in $ReportDocument.TablesOfContents) {
+        $ReportToc.Update()
+        $ReportToc.TabLeader = 1 # wdTabLeaderDots
+        $ReportToc.Range.ParagraphFormat.TabStops.Add(453.5,2,1) | Out-Null
+    }
     $ReportDocument.Fields.Update() | Out-Null
     $ReportDocument.Save()
     $ReportDocument.Close(0)
