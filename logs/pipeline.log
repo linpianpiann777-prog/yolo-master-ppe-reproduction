@@ -1,0 +1,11 @@
+[16:28:02] start test_ppe
+[16:28:50] done  test_ppe (exit 0)
+[16:28:50] start train_esmoen
+[17:02:27] done  train_esmoen (exit 0)
+[17:02:27] start test_ppe_all
+[17:03:30] done  test_ppe_all (exit 0)
+[17:03:30] start ablation_routing
+[17:06:27] done  ablation_routing (exit 0)
+[17:06:27] start alarm_analysis
+[17:06:43] done  alarm_analysis (exit 0)
+[17:06:43] pipeline finished

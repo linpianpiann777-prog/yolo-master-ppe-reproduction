@@ -1,0 +1,53 @@
+﻿loading annotations into memory...
+Done (t=0.29s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=2.37s)
+creating index...
+index created!
+Running per image evaluation...
+Evaluate annotation type *bbox*
+DONE (t=22.54s).
+Accumulating evaluation results...
+DONE (t=5.32s).
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.428
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.593
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.462
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.225
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.479
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.599
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.346
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.569
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.623
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.396
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.690
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.801
+{"model": "YOLO-Master-EsMoE-N", "params_M": 2.69, "AP": 42.8, "AP50": 59.3, "AP75": 46.2, "AP_small": 22.5, "AP_medium": 47.9, "AP_large": 59.9, "reported_AP": 42.7, "reported_AP50": 58.7, "inference_ms": 5.67, "precision": 68.8, "recall": 53.2, "ultra_mAP50": 58.6, "ultra_mAP50-95": 42.3}
+loading annotations into memory...
+Done (t=0.27s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=2.39s)
+creating index...
+index created!
+Running per image evaluation...
+Evaluate annotation type *bbox*
+DONE (t=23.87s).
+Accumulating evaluation results...
+DONE (t=4.45s).
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.431
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.597
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.465
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.231
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.482
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.603
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.345
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.569
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.623
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.404
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.693
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.793
+{"model": "YOLO-Master-v0.1-N", "params_M": 7.55, "AP": 43.1, "AP50": 59.7, "AP75": 46.5, "AP_small": 23.1, "AP_medium": 48.2, "AP_large": 60.3, "reported_AP": 42.9, "reported_AP50": 59.2, "inference_ms": 4.55, "precision": 68.3, "recall": 54.4, "ultra_mAP50": 59, "ultra_mAP50-95": 42.5}
+saved E:\yolo_course\results\coco\summary.csv

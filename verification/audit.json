@@ -1,0 +1,92 @@
+{
+  "python": "3.12.10",
+  "dataset": {
+    "train": {
+      "images": 1132,
+      "boxes": 9098,
+      "per_class": {
+        "0": 1341,
+        "6": 1770,
+        "5": 651,
+        "4": 419,
+        "2": 1269,
+        "1": 1146,
+        "3": 1235,
+        "7": 400,
+        "8": 337,
+        "9": 442,
+        "10": 88
+      },
+      "orphan_labels": [
+        "image940(1).txt",
+        "image941(1).txt",
+        "image944(1).txt",
+        "image945(1).txt",
+        "image946(1).txt",
+        "image947(1).txt",
+        "image948(1).txt",
+        "image949(1).txt",
+        "image95(1).txt",
+        "image950(1).txt"
+      ]
+    },
+    "val": {
+      "images": 143,
+      "boxes": 1172,
+      "per_class": {
+        "0": 201,
+        "3": 151,
+        "6": 239,
+        "1": 136,
+        "2": 171,
+        "4": 47,
+        "8": 41,
+        "5": 81,
+        "9": 56,
+        "7": 45,
+        "10": 4
+      },
+      "orphan_labels": []
+    },
+    "test": {
+      "images": 141,
+      "boxes": 1251,
+      "per_class": {
+        "0": 192,
+        "6": 236,
+        "2": 178,
+        "1": 163,
+        "3": 211,
+        "4": 52,
+        "7": 40,
+        "8": 33,
+        "5": 65,
+        "9": 58,
+        "10": 23
+      },
+      "orphan_labels": []
+    }
+  },
+  "exact_split_overlap": {
+    "train/val": 0,
+    "train/test": 0,
+    "val/test": 0
+  },
+  "training": {
+    "YOLO-Master-EsMoE-N": {
+      "epochs": 50,
+      "training_seconds": 1964.18
+    },
+    "YOLO-Master-v0.1-N": {
+      "epochs": 100,
+      "training_seconds": 3312.72
+    },
+    "YOLO-Master-v0.1-N-clspw0.5": {
+      "epochs": 100,
+      "training_seconds": 3349.32
+    }
+  },
+  "total_training_seconds": 8626.22,
+  "provenance": "Existing local experiments from 2026-11-02 and 2026-11-03; re-audited 2026-11-12",
+  "note": "Exact SHA256 separation does not establish person/site/video independence."
+}

@@ -1,0 +1,28 @@
+﻿Looking in indexes: https://download.pytorch.org/whl/cu126
+.\.venv\Scripts\python : WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after 
+connection broken by 'SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protoco
+l (_ssl.c:1010)'))': /whl/cu126/torch/
+At line:1 char:486
++ ... tWriteTime; .\.venv\Scripts\python -m pip install torch torchvision - ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: Retryi...hl/cu126/torch/:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSL
+Error(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'))': /whl
+/cu126/torch/
+WARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSL
+Error(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'))': /whl
+/cu126/torch/
+WARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSL
+Error(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'))': /whl
+/cu126/torch/
+WARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSL
+Error(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'))': /whl
+/cu126/torch/
+Could not fetch URL https://download.pytorch.org/whl/cu126/torch/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='download.pytorch.org', port=443): Max retries exceeded with url: /whl/cu126/torch/ (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'))) - skipping
+ERROR: Could not find a version that satisfies the requirement torch (from versions: none)
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[notice] To update, run: E:\yolo_course\.venv\Scripts\python.exe -m pip install --upgrade pip
+ERROR: No matching distribution found for torch

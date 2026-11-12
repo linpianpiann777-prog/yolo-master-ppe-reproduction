@@ -1,0 +1,5 @@
+case,mode,es_moe_blocks,mAP50-95,mAP50,precision,recall,inference_ms
+COCO / official EsMoE-N,sparse (official default),4,42.3,58.6,68.8,53.2,5.53
+COCO / official EsMoE-N,dense (train-consistent),4,42.3,58.6,68.8,53.2,5.32
+PPE / fine-tuned EsMoE-N,sparse (official default),4,27.6,55.9,72.5,52.6,9.75
+PPE / fine-tuned EsMoE-N,dense (train-consistent),4,27.6,55.9,72.6,52.6,12.29

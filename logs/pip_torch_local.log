@@ -1,0 +1,13 @@
+﻿Processing e:\yolo_course\wheels\torch-2.11.0+cu128-cp312-cp312-win_amd64.whl
+Processing e:\yolo_course\wheels\torchvision-0.26.0+cu128-cp312-cp312-win_amd64.whl
+Installing collected packages: torchvision, torch
+Successfully installed torch-2.11.0+cu128 torchvision-0.26.0+cu128
+.\.venv\Scripts\python : 
+At line:1 char:386
++ ... orchvision; .\.venv\Scripts\python -m pip install --no-deps wheels\to ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[notice] To update, run: E:\yolo_course\.venv\Scripts\python.exe -m pip install --upgrade pip

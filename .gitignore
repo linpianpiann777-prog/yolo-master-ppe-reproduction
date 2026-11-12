@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.cache
+.venv/
+release_assets/
+datasets/
+results/**/predictions.json
+results/demo/
+verification/pages/
+verification/contact*.jpg
+verification/word*.log
+YOLO-Master/*.egg-info/
+package_existing.py
+refine_delivery.py
+publish_github.py
+report/~$*

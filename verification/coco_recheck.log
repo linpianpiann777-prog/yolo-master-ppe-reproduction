@@ -1,0 +1,66 @@
+loading annotations into memory...
+Done (t=0.29s)
+creating index...
+index created!
+Loading and preparing results...
+DONE (t=1.32s)
+creating index...
+index created!
+Running per image evaluation...
+Evaluate annotation type *bbox*
+DONE (t=21.82s).
+Accumulating evaluation results...
+DONE (t=4.22s).
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.428
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.593
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.462
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.225
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.479
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.599
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.346
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.569
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.623
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.396
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.690
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.801
+Loading and preparing results...
+DONE (t=1.64s)
+creating index...
+index created!
+Running per image evaluation...
+Evaluate annotation type *bbox*
+DONE (t=22.46s).
+Accumulating evaluation results...
+DONE (t=4.38s).
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.431
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.597
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.465
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.231
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.482
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.603
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.345
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.569
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.623
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.404
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.693
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.793
+{
+  "YOLO-Master-EsMoE-N": {
+    "evaluated_images": 5000,
+    "images_with_predictions": 4995,
+    "prediction_boxes": 673186,
+    "AP": 0.4283734015692719,
+    "AP50": 0.5929814129150498,
+    "AP75": 0.4619697784042133,
+    "source": "saved official-weight predictions; not a new training run"
+  },
+  "YOLO-Master-v0.1-N": {
+    "evaluated_images": 5000,
+    "images_with_predictions": 4997,
+    "prediction_boxes": 702216,
+    "AP": 0.43064622739700703,
+    "AP50": 0.597448283488071,
+    "AP75": 0.4650226776859759,
+    "source": "saved official-weight predictions; not a new training run"
+  }
+}

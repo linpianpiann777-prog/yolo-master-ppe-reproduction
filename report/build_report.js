@@ -1,0 +1,545 @@
+// Builds the course-design document (.docx) from the saved results.
+// Usage: node report/build_report.js   (needs the `docx` npm package; run course_code/make_figures.py first)
+const fs = require("fs");
+const path = require("path");
+const {
+  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell, WidthType, BorderStyle,
+  AlignmentType, HeadingLevel, TableOfContents, Header, Footer, PageNumber, LevelFormat, VerticalAlign, SectionType,
+} = require("docx");
+
+const ROOT = path.resolve(__dirname, "..");
+const FIG = path.join(ROOT, "report", "figures");
+const RES = path.join(ROOT, "results");
+const TITLE = "深度学习在施工现场个人防护装备检测场景的应用";
+const OUT = path.join(ROOT, "report", "YOLO-Master_PPE_Course_Design.docx");
+
+// ------------------------------------------------------------------ data
+function readCsv(p) {
+  if (!fs.existsSync(p)) return [];
+  const [head, ...lines] = fs.readFileSync(p, "utf8").replace(/^﻿/, "").trim().split(/\r?\n/);
+  const keys = head.split(",").map((k) => k.trim());
+  return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [keys[i], v.trim()])));
+}
+const f1 = (x) => Number(x).toFixed(1);
+const pct = (x) => (Number(x) * 100).toFixed(1);
+const sgn = (x) => (Number(x) >= 0 ? `+${Number(x).toFixed(1)}` : Number(x).toFixed(1));
+
+const coco = readCsv(path.join(RES, "coco", "summary.csv"));
+const cocoE = coco.find((r) => r.model === "YOLO-Master-EsMoE-N");
+const cocoV = coco.find((r) => r.model === "YOLO-Master-v0.1-N");
+const test = Object.fromEntries(readCsv(path.join(RES, "ppe", "test_summary.csv")).map((r) => [r.model, r]));
+const BASE = "YOLO-Master-v0.1-N";
+const WEIGHTED = "YOLO-Master-v0.1-N-clspw0.5";
+const ESMOE = "YOLO-Master-EsMoE-N";
+const LABEL = { [BASE]: "官方默认微调（v0.1-N）", [WEIGHTED]: "类别加权（v0.1-N，cls_pw=0.5）", [ESMOE]: "EsMoE-N 微调（50 轮）" };
+const runInfo = {};
+for (const m of [BASE, WEIGHTED, ESMOE]) {
+  const rows = readCsv(path.join(RES, "ppe", m, "results.csv"));
+  if (!rows.length) continue;
+  const best = rows.reduce((a, b) => (Number(b["metrics/mAP50-95(B)"]) > Number(a["metrics/mAP50-95(B)"]) ? b : a));
+  runInfo[m] = { epochs: rows.length, minutes: Math.round(Number(rows[rows.length - 1].time) / 60), bestEpoch: best.epoch,
+    bestVal50: pct(best["metrics/mAP50(B)"]), bestVal5095: pct(best["metrics/mAP50-95(B)"]) };
+}
+const haveW = Boolean(test[WEIGHTED] && runInfo[WEIGHTED] && runInfo[WEIGHTED].epochs >= 100);
+// The scenario model is selected on the validation split, never on the test split. A gain below
+// TIE_MARGIN (≈ late-epoch val fluctuation) counts as a tie and keeps the simpler official default.
+const TIE_MARGIN = 0.5;
+const FINAL = haveW && Number(runInfo[WEIGHTED].bestVal5095) > Number(runInfo[BASE].bestVal5095) + TIE_MARGIN ? WEIGHTED : BASE;
+const valNoise = (() => {
+  const r = readCsv(path.join(RES, "ppe", BASE, "results.csv")).slice(60).map((x) => Number(x["metrics/mAP50-95(B)"]) * 100);
+  const m = r.reduce((a, b) => a + b, 0) / r.length;
+  return Math.sqrt(r.reduce((a, b) => a + (b - m) ** 2, 0) / (r.length - 1)).toFixed(2);
+})();
+const speedup = () => {
+  const s = routing.find((r) => r.case.startsWith("PPE") && r.mode.startsWith("sparse"));
+  const d = routing.find((r) => r.case.startsWith("PPE") && r.mode.startsWith("dense"));
+  return s && d ? ((1 - Number(s.inference_ms) / Number(d.inference_ms)) * 100).toFixed(0) : "?";
+};
+const T = test[FINAL];
+const routing = readCsv(path.join(RES, "ablation", "routing.csv"));
+const rt = (c, m) => routing.find((r) => r.case.startsWith(c) && r.mode.startsWith(m));
+const alarm = Object.fromEntries(readCsv(path.join(RES, "alarm", "alarm_summary.csv")).map((r) => [`${r.model}|${r.threshold_rule}`, r]));
+const aOff = alarm[`${BASE}|default conf 0.25`];
+const aOurs = alarm[`${FINAL}|val-tuned`];
+const demoLog = path.join(ROOT, "logs", "ppe_demo.log");
+const ALERTS = fs.existsSync(demoLog) ? (fs.readFileSync(demoLog, "utf8").match(/^\[ALERT\]/gm) || []).length : 0;
+
+const CLASSES = ["helmet", "gloves", "vest", "boots", "goggles", "none", "Person", "no_helmet", "no_goggle", "no_gloves", "no_boots"];
+const ZH = {
+  helmet: "安全帽", gloves: "手套", vest: "反光背心", boots: "安全靴", goggles: "护目镜", none: "无反光背心",
+  Person: "人员", no_helmet: "未戴安全帽", no_goggle: "未戴护目镜", no_gloves: "未戴手套", no_boots: "未穿安全靴",
+};
+const VIOL = ["no_helmet", "no_goggle", "no_gloves", "no_boots"];
+const PPE_POS = ["helmet", "gloves", "vest", "boots", "goggles"];
+const mean = (r, ks) => (ks.reduce((s, k) => s + Number(r[`AP50_${k}`]), 0) / ks.length).toFixed(1);
+
+// ------------------------------------------------------------------ styling helpers
+const SONG = { ascii: "Times New Roman", hAnsi: "Times New Roman", eastAsia: "宋体", cs: "Times New Roman" };
+const HEI = { ascii: "Times New Roman", hAnsi: "Times New Roman", eastAsia: "黑体", cs: "Times New Roman" };
+// Font sizes (half-points): 大标题 四号, 小标题 小四, 正文 五号.
+const H1_SIZE = 28;
+const H2_SIZE = 24;
+const BODY = 21;
+const SMALL = 21;
+const INDENT = 420;
+const W = 9070; // A4 text width in DXA with 2.5 cm margins
+
+const t = (text, o = {}) => new TextRun({ text, font: SONG, size: BODY, ...o });
+function runs(str, o = {}) {
+  return str.split(/(\*\*[^*]+\*\*)/).filter(Boolean).map((s) =>
+    s.startsWith("**") ? t(s.slice(2, -2), { bold: true, ...o }) : t(s, o));
+}
+const P = (str, o = {}) => new Paragraph({ children: runs(str), indent: { firstLine: INDENT },
+  spacing: { line: 360, before: 0, after: 0 }, alignment: AlignmentType.JUSTIFIED, ...o });
+const H1 = (s) => new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: s, font: HEI })], pageBreakBefore: true });
+const H2 = (s) => new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: s, font: HEI })] });
+const H3 = (s) => new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun({ text: s, font: HEI })] });
+const bullet = (str) => new Paragraph({ children: runs(str), numbering: { reference: "bul", level: 0 }, spacing: { line: 360 } });
+let numRef = 0;
+const numList = (items) => { const ref = `n${numRef++}`; NUM_REFS.push(ref);
+  return items.map((s) => new Paragraph({ children: runs(s), numbering: { reference: ref, level: 0 }, spacing: { line: 360 } })); };
+const NUM_REFS = [];
+const formula = (str) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, before: 60, after: 60 },
+  children: [new TextRun({ text: str, font: { ascii: "Cambria Math", hAnsi: "Cambria Math", eastAsia: "宋体" }, size: BODY })] });
+const caption = (s) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 60, after: 200 }, keepLines: true,
+  children: [new TextRun({ text: s, font: HEI, size: SMALL })] });
+const tableCaption = (s) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 200, after: 60 }, keepNext: true,
+  children: [new TextRun({ text: s, font: HEI, size: SMALL })] });
+
+function imgSize(file) {
+  const b = fs.readFileSync(file);
+  if (b[0] === 0x89) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  let i = 2;
+  while (i < b.length) {
+    const marker = b[i + 1];
+    const len = b.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+    i += 2 + len;
+  }
+  throw new Error(`cannot size ${file}`);
+}
+let figMissing = [];
+function figure(file, cap, widthPx = 560) {
+  if (!fs.existsSync(file)) { figMissing.push(path.basename(file)); return [P(`（${cap.split(" ")[0]} 待生成）`)]; }
+  const { w, h } = imgSize(file);
+  const width = Math.min(widthPx, 600);
+  return [
+    new Paragraph({ alignment: AlignmentType.CENTER, keepNext: true, spacing: { before: 120 },
+      children: [new ImageRun({ type: file.endsWith(".png") ? "png" : "jpg", data: fs.readFileSync(file),
+        transformation: { width, height: Math.round((width * h) / w) } })] }),
+    caption(cap),
+  ];
+}
+const fig = (name, cap, width) => figure(path.join(FIG, name), cap, width);
+
+// Three-line table (三线表).
+function table(header, rows, widths) {
+  const sum = widths.reduce((a, b) => a + b, 0);
+  widths = widths.map((x) => Math.round((x * W) / sum));
+  widths[widths.length - 1] += W - widths.reduce((a, b) => a + b, 0);
+  const none = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const thick = { style: BorderStyle.SINGLE, size: 12, color: "000000" };
+  const thin = { style: BorderStyle.SINGLE, size: 6, color: "000000" };
+  const cell = (text, i, { top = none, bottom = none, bold = false, keepNext = true } = {}) => new TableCell({
+    width: { size: widths[i], type: WidthType.DXA }, borders: { top, bottom, left: none, right: none },
+    margins: { top: 50, bottom: 50, left: 80, right: 80 }, verticalAlign: VerticalAlign.CENTER,
+    children: [new Paragraph({ alignment: AlignmentType.CENTER, keepNext, children: runs(String(text), { size: SMALL, bold }) })],
+  });
+  return new Table({
+    width: { size: W, type: WidthType.DXA }, columnWidths: widths, alignment: AlignmentType.CENTER,
+    rows: [
+      new TableRow({ tableHeader: true, children: header.map((h, i) => cell(h, i, { top: thick, bottom: thin, bold: true })) }),
+      ...rows.map((r, ri) => new TableRow({ cantSplit: true,
+        children: r.map((v, i) => cell(v, i, ri === rows.length - 1 ? { bottom: thick, keepNext: false } : {})) })),
+    ],
+  });
+}
+const spaceAfterTables = (items) => items.flatMap((x) => (x instanceof Table ? [x, new Paragraph({ spacing: { before: 0, after: 120, line: 240 } })] : [x]));
+
+// ------------------------------------------------------------------ cover
+const coverLine = (label) => new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 520 },
+  children: [new TextRun({ text: `${label}：`, font: HEI, size: 28 }), new TextRun({ text: "_".repeat(26), font: SONG, size: 28 })] });
+const cover = [
+  new Paragraph({ spacing: { before: 1000 } }),
+  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "课 程 设 计", font: HEI, size: 56, bold: true })] }),
+  new Paragraph({ spacing: { before: 700 } }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
+    children: [new TextRun({ text: "Reproducing YOLO-Master for PPE Compliance", font: "Times New Roman", size: 36, bold: true })] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 480 },
+    children: [new TextRun({ text: "Detection on Construction Sites", font: "Times New Roman", size: 36, bold: true })] }),
+  new Paragraph({ spacing: { before: 1100 } }),
+  ...["课程名称", "学　　院", "专　　业", "班　　级", "学生姓名", "学　　号", "指导教师"].map(coverLine),
+  new Paragraph({ spacing: { before: 600 } }),
+  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "2026 年 11 月", font: SONG, size: 28 })] }),
+];
+
+// ------------------------------------------------------------------ abstract + TOC
+const abstract = [
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: "摘　要", font: HEI, size: H1_SIZE, bold: true })] }),
+  P("建筑施工现场的个人防护装备（PPE）佩戴检查目前主要依赖人工巡查，存在覆盖范围有限、容易漏检、无法全天候监督等问题。本文以 CVPR 2026 论文 YOLO-Master 为基础，研究如何把一个最新的实时检测模型可靠地迁移到施工现场的 PPE 合规检测中。"),
+  P(`首先，在单张 RTX 4060 Laptop 上使用官方代码与官方权重，按原论文的评估协议在完整的 COCO val2017（5000 张）上复现了原论文指标：YOLO-Master-EsMoE-N 与 YOLO-Master-v0.1-N 的 COCO AP 分别为 **${f1(cocoE.AP)}%** 和 **${f1(cocoV.AP)}%**，均达到或略高于原论文公布的 42.4%。`),
+  P(`其次，针对施工场景中“逐框检测结果不能直接作为告警”“MoE 模型迁移后的推理方式存在隐患”“违规样本稀少”三个痛点，本文在官方默认方案基础上设计了图像级违规告警与验证集阈值选择方法，对 ES-MoE 稀疏推理的一致性进行了验证，并尝试了类别频率加权损失。最终模型在独立测试集上取得 mAP50 **${f1(T.mAP50)}%**；与官方默认的固定阈值相比，本文告警方案的召回率由 ${f1(aOff.recall)}% 提高到 **${f1(aOurs.recall)}%**、F1 由 ${f1(aOff.F1)}% 提高到 **${f1(aOurs.F1)}%**；在微调后的 EsMoE-N 上启用稀疏推理精度不变、推理时间减少约 ${speedup()}%。类别加权在本数据集上没有带来提升，本文分析了其原因。`),
+  P("最后，本文分析了 MoE 稀疏推理、混合精度数值稳定性、“缺失类”目标可学习性等原理性问题，并对后续改进方向进行了展望。"),
+  new Paragraph({ spacing: { before: 240, line: 360 }, children: [t("关键词：", { bold: true, font: HEI }), t("目标检测；YOLO-Master；混合专家模型；施工安全；个人防护装备；违规告警")] }),
+];
+const toc = [
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, pageBreakBefore: true,
+    children: [new TextRun({ text: "目　录", font: HEI, size: H1_SIZE, bold: true })] }),
+  new TableOfContents("目录", { hyperlink: true, headingStyleRange: "1-3" }),
+];
+
+// ------------------------------------------------------------------ chapter 1
+const ch1 = [
+  H1("第1章 绪论"),
+  H2("1.1 研究背景"),
+  P("建筑业是安全事故高发行业。高处坠落、物体打击等事故中，未正确佩戴安全帽、反光背心等个人防护装备是伤亡加重的重要原因。GB 2811-2019《头部防护 安全帽》、JGJ 59-2011《建筑施工安全检查标准》等标准对施工人员的防护装备都有明确要求，但在实际工地中，这些要求主要靠安全员人工巡查来落实。"),
+  P("工地普遍已经安装了视频监控，如果能用计算机视觉自动识别人员的防护装备佩戴情况并实时告警，就能把安全员从重复的巡查中解放出来，实现全天候、全覆盖的监督。这类任务对检测模型的要求是：速度快（实时处理视频流）、模型小（部署在工地边缘设备上），并且能够适应工地画面复杂度变化很大的特点。"),
+  H2("1.2 实时目标检测与 YOLO-Master"),
+  P("以 YOLO（You Only Look Once）为代表的单阶段检测器把检测建模为一次前向推理的回归问题，在精度与速度之间取得了良好平衡。近年来 YOLO 系列持续演进：YOLOv10 通过一致性双重标签分配实现免 NMS 的端到端检测，YOLOv12 引入以注意力为中心的结构，YOLOv13 使用超图增强的自适应感知。但这些模型本质上都是“静态稠密计算”——无论画面是一两名工人还是几十人的密集作业面，网络都执行完全相同的计算。"),
+  P("CVPR 2026 论文 YOLO-Master 将大模型领域的混合专家（Mixture-of-Experts, MoE）思想引入实时检测，由路由网络根据输入内容稀疏地激活部分专家，实现“按需计算”，在 COCO 上以 1.62 ms 的延迟取得 42.4% AP。它的 Nano 版本只有 2.7M～7.5M 参数，与施工现场“画面复杂度多变、边缘算力有限”的需求高度契合，因此本文选择它作为复现和应用的对象。"),
+  H2("1.3 本文主要工作"),
+  ...numList([
+    "**复现原论文指标**：使用官方代码与官方权重，在完整 COCO val2017 上按原论文协议评估，并与官方公布指标逐项对比（第 4 章）。",
+    "**分析应用场景与痛点**：从施工现场的实际需求出发，归纳 PPE 检测面临的关键痛点（5.1 节）。",
+    "**提出针对性的改进方案**：在官方默认方案基础上提出图像级违规告警与阈值选择方法，验证 ES-MoE 稀疏推理在场景模型上的可用性，并尝试类别频率加权损失，用对比与消融实验检验效果（5.2、5.5 节）。",
+    "**分析原理性问题**：深入分析 MoE 稀疏推理、混合精度数值稳定性、“缺失类”目标可学习性等问题（第 6 章）。",
+  ]),
+];
+
+// ------------------------------------------------------------------ chapter 2
+const ch2 = [
+  H1("第2章 原论文方法：YOLO-Master"),
+  H2("2.1 整体结构"),
+  P("YOLO-Master 以 YOLOv12-N 为基线，沿用“主干网络（Backbone）—颈部（Neck）—检测头（Head）”的单阶段结构，在 P3、P4、P5 三个尺度上输出检测结果。其核心改动是在主干网络中插入高效稀疏混合专家模块 ES-MoE（Efficient Sparse Mixture-of-Experts）。原论文的消融实验表明，仅在主干网络中插入 ES-MoE 效果最好；同时插入主干与颈部反而会因路由梯度冲突导致精度下降（见 4.1.1 节）。"),
+  H2("2.2 ES-MoE 模块"),
+  P("ES-MoE 由一组并行的专家网络和一个轻量级路由网络组成："),
+  bullet("**专家（Expert）**：默认 E = 4 个，每个专家是一个深度可分离卷积，分别使用 3×3、5×5、7×7 等不同大小的卷积核，因此不同专家天然具有不同的感受野，适合处理不同尺度和复杂度的目标。"),
+  bullet("**路由网络（Router）**：对输入特征 X 做全局平均池化得到 C×1×1 的描述子，再经过两层 1×1 卷积（中间用 SiLU 激活，中间通道 C_red = max(C/8, 8)）输出 E 个专家的打分，经 Softmax 得到专家权重 w。"),
+  bullet("**加权聚合**：输出为被选中专家输出的加权和，再经过 BN 与 SiLU："),
+  formula("Y = SiLU( BN( Σ_{i ∈ TopK(w)} ŵ_i · Expert_i(X) ) )"),
+  P("其中 ŵ 为在被选中的 K 个专家上重新归一化后的权重。原论文的消融显示 K = 2 在 50% 稀疏度下几乎不损失精度。"),
+  H2("2.3 训练与推理的不同路由方式"),
+  P("为了让训练稳定、推理高效，ES-MoE 在两个阶段使用不同的计算方式："),
+  bullet("**训练阶段（稠密 + 软 Top-K）**：所有专家都参与计算，按路由权重加权求和，梯度经过完整的 Softmax 回传，保证所有专家和路由器都得到训练信号。"),
+  bullet("**推理阶段（稀疏 Top-K）**：官方实现中，每张图像按专家的平均重要性选出前 K 个专家；若第二位专家的重要性低于动态阈值 0.4，则只保留第一位专家，并把保留专家的权重重新归一化为 1。未被选中的专家不执行计算。"),
+  P("这种训练与推理不一致的设计，是本文在场景迁移中重点处理的问题之一（见 5.2 节与 6.2 节）。"),
+  H2("2.4 损失函数"),
+  P("总损失由检测损失和负载均衡损失两部分组成："),
+  formula("L_total = L_YOLO + λ_LB · L_LB"),
+  P("其中 L_YOLO 包含分类损失（BCE）、CIoU 边框回归损失和分布焦点损失（DFL）。负载均衡损失用来防止路由器总是选择同几个专家（“专家坍缩”）。设 μ_i 为一个批次内专家 i 获得的平均路由权重，则"),
+  formula("L_LB = (1/E) · Σ_{i=1}^{E} (μ_i − 1/E)²"),
+  P("当所有专家被均匀使用时该损失为 0。原论文中仅使用 MoE 负载均衡损失（λ_LB = 1.5）的配置取得了最高精度。"),
+  H2("2.5 官方实验设置"),
+  P("原论文在 MS COCO、PASCAL VOC、VisDrone、KITTI 和 SKU-110K 五个数据集上进行实验，训练 600 轮、输入 640×640、批大小 256，使用 SGD 与余弦学习率，数据增强包括 Mosaic、Copy-Paste、随机仿射与 HSV 抖动。官方仓库发布了两个系列的权重：与原论文一致的 **EsMoE** 系列，以及后续改进的 **v0.1** 系列（MoE 模块改为训练与推理一致、带共享专家的 OptimizedMOEImproved）。官方公布的各项指标见 4.1.1 节。"),
+];
+
+// ------------------------------------------------------------------ chapter 3
+const ch3 = [
+  H1("第3章 实验环境与复现方案"),
+  H2("3.1 软硬件环境"),
+  tableCaption("表3-1 实验环境"),
+  table(["项目", "配置"], [
+    ["CPU / 内存", "Intel Core i9-14900HX / 16 GB"], ["GPU", "NVIDIA GeForce RTX 4060 Laptop，8 GB 显存"],
+    ["操作系统", "Windows 11"], ["Python", "3.12.10（项目独立虚拟环境）"],
+    ["深度学习框架", "PyTorch 2.11.0 + CUDA 12.8，torchvision 0.26.0"],
+    ["检测框架", "Ultralytics 8.4.101（YOLO-Master 官方分支，commit c73e537）"], ["评估工具", "pycocotools 2.0.11"],
+  ], [1.2, 4]),
+  H2("3.2 代码结构"),
+  P("官方代码以可编辑方式安装、不做任何修改；本文编写的代码全部放在 course_code 目录中，如表 3-2 所示。"),
+  tableCaption("表3-2 本文编写的代码"),
+  table(["文件", "功能"], [
+    ["eval_coco.py", "用官方权重在 COCO val2017 上评估，调用 pycocotools 计算官方指标"],
+    ["train_ppe.py", "PPE 场景微调；包含类别加权、稠密路由回调、断点续训"],
+    ["test_ppe.py", "在独立测试集上评估，输出各类别 AP"],
+    ["ablation_routing.py", "ES-MoE 稀疏/稠密推理路由消融"],
+    ["alarm_analysis.py", "图像级违规告警的 ROC、AUC 与阈值选择"],
+    ["ppe_demo.py", "场景应用：图片/视频/摄像头违规检测与告警"],
+    ["make_figures.py", "根据结果文件生成全部图表"],
+  ], [1.4, 4]),
+  H2("3.3 复现方案"),
+  P("原论文的 COCO 结果是在 COCO train2017（11.8 万张图像）上用多块 GPU、批大小 256 训练 600 轮得到的，单张笔记本 GPU 无法在课程周期内完成。因此本文的复现分为两部分："),
+  ...numList([
+    "**指标复现**：使用官方发布的预训练权重，在完整的 COCO val2017（5000 张图像、36335 个目标）上按原论文协议（输入 640×640、置信度阈值 0.001、NMS IoU 0.7）推理，使用 pycocotools 计算 AP，与官方公布指标对比。",
+    "**训练流程复现**：在施工现场 PPE 数据集上，用同一套代码完成完整的训练、验证和测试，验证训练流程的正确性，并在此基础上进行场景改进。",
+  ]),
+
+  H2("3.4 实验来源与四小时训练预算"),
+  P("本文复用本机 2026 年 11 月 2 日至 3 日已完成的真实实验，于 2026 年 11 月 12 日重新核验数据、模型与指标，未把历史训练写成本次新训练。三个正式实验分别用时 3312.72 秒、3349.32 秒和 1964.18 秒，合计 8626.22 秒，即 143.77 分钟，小于四小时。计时来自训练 CSV 的累计 time 字段，不包含环境安装、下载、开发、失败尝试和报告制作。旧日志中如有额外尝试，不计为这三个正式实验的训练时长。"),
+  P("样本集与测试集来源为公开 Construction-PPE，保留官方划分及许可。逐张检查图像可读性、标签格式和归一化坐标，SHA256 检查未发现跨集合完全相同的图像。训练目录有 10 个无对应图像的孤立标签，未计入训练框数；无重复文件不能证明不同集合来自不同视频、人员或工地，实际场景泛化仍需独立采集测试。"),
+  P("论文要求包含代码复现与达到原文指标。本项目完成官方模型的权重评估复现和新场景迁移训练，未完成 COCO 从头训练复现，也未验证原文 1.62 ms 的 TensorRT 延迟。因此是否满足教师高难度档位，需要由教师按复现范围评定，本文不将该限制隐藏为已完成。"),
+];
+
+// ------------------------------------------------------------------ chapter 4
+const cocoRows = coco.map((r) => [r.model.replace("YOLO-Master-", ""), r.params_M + "M", `**${f1(r.AP)}**`, f1(r.AP50), f1(r.AP75),
+  f1(r.AP_small), f1(r.AP_medium), f1(r.AP_large), r.model.includes("EsMoE") ? "42.4 / 42.7" : "— / 42.9"]);
+const ch4 = [
+  H1("第4章 原论文指标复现"),
+  H2("4.1 官方公布指标与本地复现对比"),
+  H3("4.1.1 官方公布指标"),
+  P("在对比之前，先整理原论文与官方仓库公布的关键指标。图 4-1 为原论文表 1 中五个 Nano 级模型在五个数据集上的 mAP。YOLO-Master-N 在全部五个数据集上都取得最高精度，说明 ES-MoE 带来的提升不局限于 COCO，具有较好的**泛化能力**；其中在小目标密集的 VisDrone 和多目标的 KITTI 上提升最明显。"),
+  ...fig("fig_official_generalization.png", "图4-1 官方公布：Nano 模型在五个数据集上的 mAP", 600),
+  P("图 4-2 给出精度与延迟的关系。YOLO-Master-N 位于左上角，在比 YOLOv13-N 快约 18% 的同时精度高 0.8 个百分点，体现了稀疏计算“少算但算得准”的优势。"),
+  ...fig("fig_official_tradeoff.png", "图4-2 官方公布：COCO 精度—延迟权衡", 430),
+  P("图 4-3 为原论文的三组消融实验：ES-MoE 只放在主干网络效果最好；4 个专家优于 2 个和 8 个；激活 2 个专家（50% 稀疏度）与全部激活的精度几乎相同。这些结论是官方配置的依据，也为本文理解稀疏推理行为提供了参考。"),
+  ...fig("fig_official_ablation.png", "图4-3 官方消融实验结果", 600),
+  H3("4.1.2 本地复现结果"),
+  P("表 4-1 为两个官方 Nano 权重在本地 COCO val2017 上的完整评估结果，AP 均由 pycocotools 计算，与原论文的评估协议一致。"),
+  tableCaption("表4-1 COCO val2017 本地复现结果（%）"),
+  table(["模型", "参数量", "AP", "AP50", "AP75", "AP_S", "AP_M", "AP_L", "官方 AP（原论文/仓库）"], cocoRows, [1.5, 1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 2]),
+  ...fig("fig_coco_official_vs_local.png", "图4-4 官方公布指标与本地复现指标对比", 600),
+  P(`如图 4-4 所示，EsMoE-N 的本地复现 AP 为 ${f1(cocoE.AP)}%，比原论文公布的 42.4% 高 ${(Number(cocoE.AP) - 42.4).toFixed(1)} 个百分点，比官方仓库公布的 42.7% 高 ${(Number(cocoE.AP) - 42.7).toFixed(1)} 个百分点；v0.1-N 为 ${f1(cocoV.AP)}%，比官方仓库公布的 42.9% 高 ${(Number(cocoV.AP) - 42.9).toFixed(1)} 个百分点。AP50 也与官方公布值一致或略高。**两份官方权重的本地精度评估达到公布值附近；这验证了推理与评估流程，不等同于从头训练复现成功。**`),
+  ...fig("fig_coco_size_ap.png", "图4-5 本地复现：不同尺度目标的 AP", 430),
+  ...fig("fig_coco_metric_curves.jpg", "图4-6 本地复现：v0.1-N 在 COCO 上的精确率、召回率、F1 与 PR 曲线", 600),
+  H2("4.2 结果分析"),
+  bullet(`**不同尺度目标**：两个模型的小目标 AP（约 ${f1(cocoE.AP_small)}%）明显低于中目标（约 ${f1(cocoE.AP_medium)}%）和大目标（约 ${f1(cocoE.AP_large)}%），这是 Nano 级轻量模型的共性，也预示了 PPE 场景中手套、护目镜等小目标会更难检测。`),
+  bullet("**精确率—召回率特性**：图 4-6 中，F1 曲线在置信度约 0.3 附近达到峰值；置信度阈值越高，精确率越高、召回率越低。这说明实际应用时阈值需要按场景需求选择，而不能直接套用默认值（本文在 5.2 节据此设计了告警阈值选择方法）。"),
+  bullet(`**评估工具差异**：Ultralytics 自带评估器给出的 mAP50-95 为 ${f1(cocoE["ultra_mAP50-95"])}% / ${f1(cocoV["ultra_mAP50-95"])}%，比 pycocotools 低 0.3～0.6 个百分点，差异可能涉及插值、最大检测数和具体实现；本文没有通过逐项消融确定唯一原因。与官方公布指标对比应以 pycocotools 为准。`),
+  bullet(`**推理速度**：在 RTX 4060 Laptop 上，PyTorch FP32 单张推理时间约为 ${f1(cocoE.inference_ms)} ms（EsMoE-N）与 ${f1(cocoV.inference_ms)} ms（v0.1-N），约 175～220 FPS，满足实时要求。官方公布的延迟采用 TensorRT 等特定部署设置，本实验没有复现该部署条件，两者不可直接比较。`),
+];
+
+// ------------------------------------------------------------------ chapter 5
+const testRow = (m) => { const r = test[m]; return [LABEL[m], `**${f1(r.mAP50)}**`, `**${f1(r["mAP50-95"])}**`, f1(r.precision), f1(r.recall), mean(r, PPE_POS), mean(r, VIOL)]; };
+const resultModels = [BASE, WEIGHTED, ESMOE].filter((m) => test[m]);
+let wText = [];
+if (haveW) {
+  const w = test[WEIGHTED], b = test[BASE];
+  const dv = Number(mean(w, VIOL)) - Number(mean(b, VIOL));
+  wText = [
+    P(`与官方默认微调相比，类别加权后测试集 mAP50 变化 ${sgn(Number(w.mAP50) - Number(b.mAP50))}、mAP50-95 变化 ${sgn(Number(w["mAP50-95"]) - Number(b["mAP50-95"]))} 个百分点；四个违规类别的平均 AP50 变化 ${sgn(dv)} 个百分点，其中未戴安全帽 ${sgn(Number(w.AP50_no_helmet) - Number(b.AP50_no_helmet))}、未戴护目镜 ${sgn(Number(w.AP50_no_goggle) - Number(b.AP50_no_goggle))}、未戴手套 ${sgn(Number(w.AP50_no_gloves) - Number(b.AP50_no_gloves))}、未穿安全靴 ${sgn(Number(w.AP50_no_boots) - Number(b.AP50_no_boots))}。验证集上，官方默认微调的最佳 mAP50-95 为 ${runInfo[BASE].bestVal5095}%，类别加权为 ${runInfo[WEIGHTED].bestVal5095}%。`),
+    P(dv > 1 ? "结果说明，对稀有违规类别提高损失权重能有效缓解类别不均衡，提升违规类别的检出能力，这正是施工场景最关心的部分。"
+      : "结果说明，在本数据集上单纯对稀有类别加权没有带来整体收益：只有样本最少的“未穿安全靴”有所提升，其余违规类与装备类反而下降，属于“此消彼长”。其原理将在 6.4 节分析：违规类别的难点不只是样本少，更在于它们是由“缺失”定义的类别，加大权重也无法提供新的视觉证据。因此本文没有把类别加权纳入最终方案，这一负面结果同样为后续改进指明了方向。"),
+  ];
+}
+const routeText = () => {
+  const cs = rt("COCO", "sparse"), cd = rt("COCO", "dense"), ps = rt("PPE", "sparse"), pd = rt("PPE", "dense");
+  if (!cs || !cd) return [P("（路由消融实验结果待补充。）")];
+  const out = [P(`在 COCO 官方权重上，稀疏与稠密两种设置的 mAP50-95 完全相同（均为 ${cs["mAP50-95"]}%），推理时间 ${cs.inference_ms} ms 与 ${cd.inference_ms} ms 的差异也在测量误差范围内。进一步检查发现，官方发布的 EsMoE-N 权重中每个 ES-MoE 模块只有 3 个专家，且没有启用 Top-K（use_top_k = False），因此无论稀疏开关如何设置，推理时实际执行的都是全部专家的稠密计算——**官方发布权重的推理本身就是稠密的**。`)];
+  if (ps && pd) out.push(P(`本文按当前代码配置微调的 EsMoE-N（4 个专家、Top-2）启用了真正的稀疏推理：稀疏与稠密两种方式的 mAP50-95 同为 ${pd["mAP50-95"]}%、mAP50 同为 ${pd.mAP50}%，表中舍入后的精度相同，而单张推理时间由 ${pd.inference_ms} ms 降到 ${ps.inference_ms} ms，减少约 ${speedup()}%。这说明官方脚本提示的“稀疏推理导致精度崩溃”在本场景中并未出现：本次测试集未显示明显的舍入后指标差异，但单次耗时受预热和测量噪声影响，不能据此承诺部署收益。启用稀疏推理前仍需在目标设备和新数据上复验。`));
+  return out;
+};
+const alarmText = () => {
+  if (!aOff || !aOurs) return [P("（告警实验结果待补充。）")];
+  return [
+    P(`测试集 141 张图像中有 ${aOurs.positives} 张包含违规。最终模型的图像级违规告警 AUC 为 ${f1(aOurs.AUC)}%（图 5-13）。按官方默认置信度 0.25 告警时，官方默认微调模型的精确率为 ${f1(aOff.precision)}%、召回率为 ${f1(aOff.recall)}%、F1 为 ${f1(aOff.F1)}%；本文在验证集上按 F1 最大选出阈值 ${Number(aOurs.threshold).toFixed(2)}，测试集精确率 ${f1(aOurs.precision)}%、召回率 ${f1(aOurs.recall)}%、F1 ${f1(aOurs.F1)}%。`),
+    P("值得注意的是，违规类别的逐框 AP 只有 20%～30%，但图像级告警的 AUC 却接近 1。原因是：一张违规图像中往往有多名人员、多个违规框，只要其中一个框被高置信度检出就能正确告警，图像级判断对单个框的漏检和定位误差有很强的容错性。这也说明对安全告警这类应用，用图像级指标评估比逐框 mAP 更贴近实际需求。由于测试集中只有 26 张违规图像，AUC 的统计置信区间较宽，需要更大规模的数据进一步验证。"),
+    P("图 5-14 展示了阈值对告警性能的影响：阈值过低时召回率高但误报增多，阈值过高时漏报迅速增加。官方默认的 0.25 已经处在召回率开始下降的区间，而验证集选定的阈值位于召回率仍为 100% 的平台上。用验证集选择阈值，避免了在测试集上调参带来的乐观偏差。"),
+  ];
+};
+const ch5 = [
+  H1("第5章 场景应用：施工现场 PPE 合规检测"),
+  H2("5.1 应用场景分析"),
+  H3("5.1.1 场景描述"),
+  P("本文面向的应用场景是**建筑施工现场的个人防护装备合规监测**：利用工地已有的监控摄像头，自动识别画面中人员的防护装备佩戴情况，发现违规时实时告警。具体场景定义如表 5-1 所示。"),
+  tableCaption("表5-1 施工现场 PPE 合规检测场景定义"),
+  table(["要素", "说明"], [
+    ["使用者", "施工企业安全员、项目管理人员"],
+    ["部署位置", "工地出入口（进场检查）、作业面固定监控摄像头、塔吊或高处俯视摄像头"],
+    ["输入数据", "监控视频流（720p/1080p RGB）或抓拍图片，以白天室外光照为主"],
+    ["检测对象", "人员；5 类防护装备（安全帽、手套、反光背心、安全靴、护目镜）；5 类缺失状态（无反光背心、未戴安全帽、未戴护目镜、未戴手套、未穿安全靴）"],
+    ["判定输出", "每帧给出“是否存在违规”及违规类型，保存带标注框的告警图片并统计违规次数"],
+    ["性能要求", "单路视频实时处理（≥ 25 FPS），可部署在工地边缘计算设备上"],
+  ], [1.2, 4.6]),
+  H3("5.1.2 当前痛点"),
+  P("结合施工现场的实际情况与公开数据集的分析（见 5.3 节），PPE 合规检测面临以下痛点："),
+  ...numList([
+    "**人工巡查效率低**：安全员只能定时、定点检查，覆盖范围有限，容易疲劳漏检，且无法全天候监督。",
+    "**违规样本稀少，模型偏向“正常”**：工地中多数人员是合规的，违规样本天然稀少。数据集中“未穿安全靴”只有 88 个标注框，是“人员”类的 1/20，标准训练会让模型忽视这些类别，而它们恰恰是告警最需要的。",
+    "**目标小、遮挡多**：手套、护目镜在监控画面中往往只占图像边长的百分之几，人员相互遮挡，检测难度大。",
+    "**逐框检测结果不能直接作为告警**：检测器输出的是一个个带置信度的框，而安全员需要的是“这一帧有没有违规”的判断。直接使用默认置信度（0.25），阈值与场景不匹配，容易导致误报过多（告警疲劳）或漏报。",
+    "**模型迁移存在隐患**：YOLO-Master 的 ES-MoE 在训练和推理时计算方式不同，直接按官方默认设置微调和推理，可能出现精度异常。",
+  ]),
+  H2("5.2 解决方案设计"),
+  H3("5.2.1 总体方案"),
+  P("本文的总体方案为：监控视频帧 → YOLO-Master-N 检测人员与 11 类防护装备状态 → 图像级违规判定 → 告警输出与留存。模型以 COCO 预训练权重为起点，在施工 PPE 数据集上迁移学习。针对 5.1.2 节的痛点，本文与官方默认方案的对比如表 5-2 所示。"),
+  tableCaption("表5-2 官方默认方案与本文方案对比"),
+  table(["环节", "官方默认方案", "本文方案", "对应痛点"], [
+    ["告警判定", "逐框输出，固定置信度 0.25", "**图像级告警 + 验证集 ROC/F1 选阈值**", "逐框结果不能直接告警"],
+    ["MoE 推理路由", "默认稀疏 Top-K，未验证迁移后的一致性", "**验证稀疏/稠密推理一致性，用稀疏推理加速**", "模型迁移隐患"],
+    ["分类损失", "各类别等权 BCE", "尝试类别频率加权（cls_pw = 0.5）", "违规样本稀少"],
+    ["模型选择", "—", "按验证集选择（差异小于波动视为持平），测试集只做最终评估", "评估可信度"],
+  ], [1.2, 2.1, 2.6, 1.5]),
+  H3("5.2.2 创新点一：图像级违规告警与阈值选择"),
+  P("安全员需要的是“这一帧是否违规”。本文把逐框检测结果转换为图像级告警：对每张图像，取所有违规类检测框中的最高置信度作为该图像的违规得分；若图像的真实标注中存在任一违规类，则该图像为正样本。这样就把检测问题转换成了二分类问题，可以用 ROC 曲线和 AUC 评估告警能力，并在验证集上按 F1 最大选出告警阈值，再在测试集上评估。在安全场景中，漏报一次违规的代价通常远大于一次误报，因此阈值选择不能简单沿用通用检测的默认值。核心代码如图 5-1、图 5-2 所示。"),
+  ...fig("fig_code_alarm_scores.png", "图5-1 图像级违规得分计算核心代码（alarm_analysis.py）", 560),
+  ...fig("fig_code_demo.png", "图5-2 告警判定核心代码（ppe_demo.py）", 520),
+  H3("5.2.3 创新点二：MoE 推理路由一致性验证与稀疏加速"),
+  P("如 2.3 节所述，ES-MoE 在训练时让所有专家参与计算，推理时默认只保留重要性最高的少数专家并重新归一化权重。官方复现脚本中提示：在新数据集上微调后直接使用稀疏推理，可能因训练与推理不一致导致验证精度崩溃。但这一风险是否真实存在、稀疏推理能带来多少加速，官方没有给出定量结论。"),
+  P("本文的做法是：训练过程中注册回调，把模型及其 EMA 副本中所有 ES-MoE 模块切换为稠密路由（图 5-3），保证训练期间的验证结果与训练一致、模型选择稳定可靠；训练结束后，再对同一权重分别用稀疏和稠密两种方式推理，定量比较精度和速度，据此决定部署时是否启用稀疏推理（结果见 5.5.2 节）。"),
+  ...fig("fig_code_dense_routing.png", "图5-3 训练期间稠密路由回调核心代码（train_ppe.py）", 560),
+  H3("5.2.4 改进尝试：类别频率加权损失"),
+  P("标准的二元交叉熵对每个类别一视同仁，在长尾数据上，梯度主要来自“人员”“安全帽”等常见类别。本文尝试对分类损失按类别出现频率的倒数加权，权重为"),
+  formula("w_c = (1 / n_c)^p,   p = cls_pw = 0.5"),
+  P("其中 n_c 为类别 c 的训练样本数。取 0.5 次方而不是 1 次方，是为了避免极稀有类别权重过大导致训练不稳定。按训练集统计，“未穿安全靴”的权重为 2.42，“人员”为 0.54，其余违规类在 1.08～1.24 之间。为了严格控制变量，对比实验中只改变这一个参数，其余设置与官方默认微调完全相同。"),
+  H2("5.3 数据集分析"),
+  P("本文使用 Ultralytics 发布的 Construction-PPE 数据集（AGPL-3.0 协议），共 1416 张图像、11 个类别、11521 个标注框，采用 YOLO 格式标注。按官方划分，训练集（样本集）1132 张用于训练，验证集 143 张用于训练中的模型选择，测试集 141 张在训练中完全不使用，只用于最终评估。"),
+  ...fig("fig_ds_train_counts.png", "图5-4 训练集各类别标注框数与出现图像数", 500),
+  P("图 5-4 显示了明显的长尾分布：“人员”类有 1770 个框，而“未穿安全靴”只有 88 个、仅出现在 28 张图像中。四个违规类的样本量普遍只有防护装备类的 1/3 左右，这是 5.2.4 节尝试类别加权的依据。"),
+  ...fig("fig_ds_split_share.png", "图5-5 各类别在训练/验证/测试集中的占比", 560),
+  P("图 5-5 比较了三个划分中各类别的占比。总体分布基本一致，说明测试集能够代表训练数据的分布；但“未穿安全靴”在验证集中只有 4 个框、测试集中有 23 个框，样本极少导致该类别的指标统计波动很大，分析结果时需要注意。"),
+  ...fig("fig_ds_box_stats.png", "图5-6 标注框尺寸、目标密度与中心位置分布", 600),
+  P("图 5-6 从标注框角度做了进一步对比：左图中，人员和反光背心的相对尺寸中位数在 25% 以上，而手套、护目镜、安全靴及对应的违规类只有 5%～10%，属于小目标，与 COCO 上小目标 AP 偏低的规律相对应；中图显示每张图像平均有 8 个标注框，存在多人同框；右图显示目标中心集中在画面中部，符合监控和手持拍摄的构图习惯。图 5-7 为部分训练样本的标注可视化（蓝色为防护装备，绿色为人员，橙色为违规/缺失类）。"),
+  ...fig("fig_ds_gt_samples.jpg", "图5-7 数据集标注样例", 480),
+  H2("5.4 模型训练"),
+  P("以 YOLO-Master-v0.1-N 的 COCO 预训练权重初始化，在训练集上微调。主要超参数如表 5-3 所示，其余沿用官方默认值。"),
+  tableCaption("表5-3 训练超参数"),
+  table(["参数", "取值", "参数", "取值"], [
+    ["输入尺寸", "640×640", "训练轮数", "100（早停耐心 50）"], ["批大小", "8", "优化器", "自动选择（AdamW）"],
+    ["初始化", "COCO 预训练权重", "数据增强", "Mosaic、随机仿射、HSV、翻转"], ["随机种子", "0", "类别加权 cls_pw", "0（官方默认）/ 0.5（本文）"],
+  ], [1.2, 1.8, 1.2, 1.8]),
+  ...fig("fig_val_map_curve.png", "图5-8 验证集 mAP50-95 随训练轮次变化", 520),
+  P(`由图 5-8 可见，得益于 COCO 预训练权重，模型在前 10 轮迅速收敛，约 60 轮后进入平台期。官方默认微调在第 ${runInfo[BASE].bestEpoch} 轮取得验证集最佳 mAP50-95 ${runInfo[BASE].bestVal5095}%${haveW ? `，类别加权在第 ${runInfo[WEIGHTED].bestEpoch} 轮取得 ${runInfo[WEIGHTED].bestVal5095}%` : ""}。`),
+  P(`模型选择遵循“在验证集上选择、在测试集上评估”的原则。训练后期（第 61 轮以后）验证集 mAP50-95 的标准差为 ${valNoise} 个百分点，因此本文规定：新方案在验证集上的提升超过 ${TIE_MARGIN} 个百分点才视为有效，否则视为持平，保留更简单的官方默认设置。${haveW ? `两者的差距为 ${(Number(runInfo[WEIGHTED].bestVal5095) - Number(runInfo[BASE].bestVal5095)).toFixed(2)} 个百分点，${FINAL === BASE ? "小于" : "超过"}该门限，` : ""}最终选用 **${LABEL[FINAL]}** 作为场景模型。`),
+  H2("5.5 实验结果与对比"),
+  H3("5.5.1 检测精度"),
+  tableCaption("表5-4 测试集总体结果（%）"),
+  table(["模型", "mAP50", "mAP50-95", "精确率", "召回率", "装备类平均 AP50", "违规类平均 AP50"], resultModels.map(testRow), [2.6, 0.9, 1, 0.9, 0.9, 1.3, 1.3]),
+  ...fig("fig_test_ap50_per_class.png", "图5-9 测试集各类别 AP50 对比", 500),
+  P(`最终模型对防护装备本身的检测效果较好：安全帽 ${f1(T.AP50_helmet)}%、反光背心 ${f1(T.AP50_vest)}%、护目镜 ${f1(T.AP50_goggles)}%、人员 ${f1(T.AP50_Person)}%，能够可靠识别“戴了什么”。违规类别仍是短板：未戴安全帽 ${f1(T.AP50_no_helmet)}%、未戴护目镜 ${f1(T.AP50_no_goggle)}%、未戴手套 ${f1(T.AP50_no_gloves)}%、未穿安全靴 ${f1(T.AP50_no_boots)}%。`),
+  ...fig("fig_ppe_metric_curves.jpg", "图5-10 最终模型在测试集上的精确率、召回率、F1 与 PR 曲线", 600),
+  ...figure(path.join(RES, "ppe", `${FINAL}_test`, "confusion_matrix_normalized.png"), "图5-11 最终模型测试集归一化混淆矩阵", 440),
+  P("混淆矩阵显示，违规类的主要错误是被判为背景（漏检），而不是与其他类别混淆，说明提高这些类别的召回率是首要的改进方向。"),
+  H3("5.5.2 消融实验"),
+  P("**（1）类别频率加权。**", { keepNext: true }),
+  ...(haveW ? wText : [P("（类别加权实验结果待补充。）")]),
+  P("**（2）推理路由方式。**为验证 5.2.3 节的分析，本文在 PPE 数据集上按稠密路由微调了 EsMoE-N（受时间限制训练 50 轮），并分别用稀疏和稠密两种方式推理；同时在 COCO 官方权重上做同样的对比，结果如图 5-12 所示。"),
+  ...fig("fig_ablation_routing.png", "图5-12 ES-MoE 推理路由方式消融", 600),
+  ...routeText(),
+  H3("5.5.3 图像级告警性能"),
+  ...fig("fig_alarm_roc.png", "图5-13 图像级违规告警 ROC 曲线", 600),
+  ...fig("fig_alarm_threshold.png", "图5-14 告警阈值对精确率、召回率与 F1 的影响", 500),
+  ...alarmText().map((p) => p),
+  H3("5.5.4 改进效果汇总"),
+  ...fig("fig_improvement.png", "图5-15 官方默认方案与本文方案改进效果对比（测试集）", 580),
+  ...(aOff && aOurs ? [P(`图 5-15 汇总了本文方案与官方默认方案在测试集上的对比。官方默认方案为：官方默认微调模型 + 固定置信度 0.25 告警；本文方案为：验证集选出的最终模型 + 验证集选定阈值（${Number(aOurs.threshold).toFixed(2)}）的图像级告警。本文方案的告警召回率提高 ${sgn(Number(aOurs.recall) - Number(aOff.recall))} 个百分点，达到 ${f1(aOurs.recall)}%，即测试集中的 ${aOurs.positives} 张违规图像全部被发现；F1 提高 ${sgn(Number(aOurs.F1) - Number(aOff.F1))} 个百分点。代价是精确率下降 ${(Number(aOff.precision) - Number(aOurs.precision)).toFixed(1)} 个百分点，即多出少量误报。对施工安全监管而言，漏报一次违规可能导致事故，而误报只需安全员看一眼即可排除，因此这一取舍是合理的。此外，在 EsMoE-N 场景模型上启用稀疏推理可再减少约 ${speedup()}% 的推理时间。`)] : []),
+  H2("5.6 场景应用演示"),
+  P(`ppe_demo.py 实现了完整的违规告警流程：读取图片、视频文件或摄像头画面进行检测，当任一违规类检测框的置信度达到验证集选定的告警阈值（${aOurs ? Number(aOurs.threshold).toFixed(2) : "0.25"}）时，输出告警信息并保存标注图片。`),
+  ...fig("fig_demo_compliant.jpg", "图5-16 施工现场合规场景检测示例（测试集）", 500),
+  P("图 5-16 是测试集中的施工现场图像，多名工人的安全帽、反光背心、手套和安全靴都被正确检出，且没有误报违规。"),
+  ...fig("fig_demo_alerts.jpg", "图5-17 违规告警示例（测试集）", 500),
+  P(`在测试集 141 张图像中，共有 ${ALERTS} 张触发了违规告警。需要指出的是，触发告警的图像中有相当一部分不是施工现场，而是会议、街头、运动场等日常人物照片（如图 5-17 中的部分示例）。Construction-PPE 数据集收录了这类图像，并按“没戴安全帽”给其中的人标注了违规类别。按数据集的标注语义，这些告警是“正确”的；但在真实工地中，这类图像会稀释工地违规样本的比例，这也是违规类别 AP 偏低的原因之一。实际部署前，应补充采集真实工地的违规样本。`),
+];
+
+// ------------------------------------------------------------------ chapter 6
+const ch6 = [
+  H1("第6章 训练方案与原理性问题分析"),
+  H2("6.1 迁移学习中的检测头重建"),
+  P("COCO 有 80 个类别，PPE 数据集有 11 个类别，因此检测头中与类别数相关的分类分支形状不同，无法直接复用。加载预训练权重时，937 项参数中迁移了 889 项，其余 48 项（各尺度分类分支的最后一层）被重新随机初始化。主干与颈部保留了在 COCO 上学到的通用特征（边缘、纹理、人体结构），新的分类头只需要学习如何把这些特征映射到 11 个新类别，因此模型在前 10 轮就能达到较高精度。这也说明在小数据集上，预训练初始化比从头训练重要得多。"),
+  H2("6.2 MoE 稀疏推理与训练的不一致"),
+  P("ES-MoE 在训练时对所有专家做加权求和，输出可以写成 Y_train = Σ_i w_i·E_i(X)；推理时官方实现只保留少数专家并重新归一化，输出变为 Y_infer = E_j(X)（只保留一个专家时）。两者只有在“各专家输出相近”或“路由权重高度集中”时才近似相等。"),
+  formula("Y_train − Y_infer = Σ_{i≠j} w_i · (E_i(X) − E_j(X))"),
+  P("上式表明，两者的差异由被丢弃专家的权重 w_i 和专家输出之间的差异共同决定。"),
+  P("如果路由权重分散（多个专家权重接近），丢弃部分专家会让 ES-MoE 输出的幅度和分布偏离训练时的统计量；紧随其后的 BN 层使用的是训练时统计的均值和方差，误差会被逐层放大，这就是官方脚本提示“稀疏推理可能导致精度崩溃”的原理。反之，如果路由权重高度集中，被丢弃专家的贡献本来就很小，两种计算方式的输出几乎相同。"),
+  P(`本文的消融实验（5.5.2 节）给出了定量答案：在 PPE 上微调 50 轮的 EsMoE-N，稀疏与稠密推理舍入后的精度相同；仅凭该结果不能证明路由器已学到集中的权重分布；同时稀疏推理少算了部分专家，推理时间减少约 ${speedup()}%，这正是 MoE“按需计算”的价值所在。另一个发现是，官方发布的 EsMoE-N 权重没有启用 Top-K，推理时实际上是稠密计算，因此原论文公布的速度优势在官方权重上并不能直接通过稀疏推理获得。这也提示在复现 MoE 类模型时，必须检查权重中路由相关的配置，而不能只看代码的默认参数。`),
+  H2("6.3 MoE 微调初期的梯度 NaN 与混合精度"),
+  P("每次微调的第 1 轮都会出现一次梯度 NaN。分类头初始化与混合精度溢出可能有关，但本文未通过控制实验确定根因。官方训练器检测到非有限梯度后，会回滚到上一个健康检查点、重跑该轮，并关闭混合精度（改用 FP32）以保证数值稳定。这会使第 1 轮耗时翻倍、后续显存占用增加，但之后训练一直正常收敛。改进思路包括：加入更长的学习率预热、对路由器使用更小的学习率，或对路由打分做数值裁剪。"),
+  H2("6.4 “缺失类”目标的可学习性与类别不均衡"),
+  P("违规类别（如“未戴安全帽”）与普通类别有本质区别：它们是由“缺少某样东西”定义的。“未戴安全帽”框住的是一个普通的人头，它与会议照片、街拍中的人头在外观上完全相同；模型无法从框内的像素中找到“违规”的直接证据，只能依赖“工地环境”等上下文线索。这使得违规类别天然比装备类别难学，而样本稀少又进一步加剧了这一问题。"),
+  P("类别频率加权从优化角度提高了稀有类别的梯度贡献，可以缓解“模型忽视稀有类别”的问题；但它无法创造新的视觉证据。要从根本上改进，需要从数据和建模两方面入手：补充真实工地中的违规样本，或者改为“检测人员 + 检测装备 + 空间关联”的规则判定，例如检查人员框上部是否有安全帽框，从而把难学的“缺失类”转化为容易学的“存在类”。"),
+  H2("6.5 模型选择与评估协议"),
+  P("本文严格区分了三个数据划分的用途：训练集用于更新参数，验证集用于选择最佳轮次、比较训练方案和选择告警阈值，测试集只在最后评估一次。如果在测试集上挑选模型或阈值，等于让测试集参与了“训练”，得到的指标会偏乐观。此外，逐框的 mAP 衡量的是定位与分类的综合精度，而图像级 AUC/F1 衡量的是告警能力，两者关注点不同，应根据应用目标选择评估指标。"),
+];
+
+// ------------------------------------------------------------------ chapter 7 + refs + appendix
+const ch7 = [
+  H1("第7章 总结与展望"),
+  H2("7.1 工作总结"),
+  ...numList([
+    `**复现了原论文指标**：在单张 RTX 4060 笔记本显卡上用官方权重完整复现了 YOLO-Master 的 COCO 指标，EsMoE-N 与 v0.1-N 分别取得 ${f1(cocoE.AP)}% 和 ${f1(cocoV.AP)}% AP，均达到或略超过官方公布的 42.4% / 42.9%。`,
+    "**分析了施工场景的痛点**：归纳了违规样本稀少、目标小、逐框结果不能直接告警、MoE 迁移隐患等关键问题。",
+    `**提出并验证了改进方案**：最终模型测试集 mAP50 为 ${f1(T.mAP50)}%；图像级违规告警 AUC 为 ${f1(aOurs.AUC)}%，验证集选定阈值使告警召回率由 ${f1(aOff.recall)}% 提高到 ${f1(aOurs.recall)}%、F1 由 ${f1(aOff.F1)}% 提高到 ${f1(aOurs.F1)}%；验证了稀疏推理在场景模型上精度无损、推理时间减少约 ${speedup()}%；类别加权在本数据集上无收益，并分析了原因。`,
+    "**分析了原理性问题**：解释了 MoE 稀疏推理的一致性条件、官方权重实际为稠密推理、混合精度数值稳定性、“缺失类”可学习性等问题。",
+  ]),
+  H2("7.2 不足与展望"),
+  bullet("**训练复现不完整**：受算力限制，未能在 COCO 上从头训练 600 轮验证原论文的训练结果；EsMoE-N 的场景微调也只训练了 50 轮。"),
+  bullet("**补充场景数据**：采集真实工地（特别是违规情况下）的监控图像并标注，减少非施工场景图像，是提升违规类别检测效果最直接的方法。"),
+  bullet("**改进判定方式**：将违规类别的直接检测改为“人员 + 装备 + 空间关联”的规则判定，并在视频中加入多帧确认，降低误报。"),
+  bullet("**部署优化**：将模型导出为 ONNX / TensorRT 并使用 FP16 推理，部署到工地边缘设备，实现多路视频实时监测与告警推送。"),
+];
+const refs = [
+  "Lin X, Peng J, Gan Z, Zhu J, Liu J. YOLO-Master: MOE-Accelerated with Specialized Transformers for Enhanced Real-time Detection[C]. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2026. arXiv:2512.23273.",
+  "Redmon J, Divvala S, Girshick R, Farhadi A. You Only Look Once: Unified, Real-Time Object Detection[C]. CVPR, 2016: 779-788.",
+  "Wang A, Chen H, Liu L, et al. YOLOv10: Real-Time End-to-End Object Detection[C]. Advances in Neural Information Processing Systems (NeurIPS), 2024.",
+  "Tian Y, Ye Q, Doermann D. YOLOv12: Attention-Centric Real-Time Object Detectors[J]. arXiv:2502.12524, 2025.",
+  "Lei M, Li S, Wu Y, et al. YOLOv13: Real-Time Object Detection with Hypergraph-Enhanced Adaptive Visual Perception[J]. arXiv:2506.17733, 2025.",
+  "Shazeer N, Mirhoseini A, Maziarz K, et al. Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer[C]. International Conference on Learning Representations (ICLR), 2017.",
+  "Fedus W, Zoph B, Shazeer N. Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity[J]. Journal of Machine Learning Research, 2022, 23(120): 1-39.",
+  "Lin T Y, Maire M, Belongie S, et al. Microsoft COCO: Common Objects in Context[C]. European Conference on Computer Vision (ECCV), 2014: 740-755.",
+  "Cui Y, Jia M, Lin T Y, Song Y, Belongie S. Class-Balanced Loss Based on Effective Number of Samples[C]. CVPR, 2019: 9268-9277.",
+  "Jocher G, Qiu J, Chaurasia A. Ultralytics YOLO[CP/OL]. https://github.com/ultralytics/ultralytics, 2023.",
+  "Ultralytics. Construction-PPE Dataset[DS/OL]. https://docs.ultralytics.com/datasets/detect/construction-ppe/, 2025.",
+  "国家市场监督管理总局, 国家标准化管理委员会. GB 2811-2019 头部防护 安全帽[S]. 北京: 中国标准出版社, 2019.",
+  "中华人民共和国住房和城乡建设部. JGJ 59-2011 建筑施工安全检查标准[S]. 北京: 中国建筑工业出版社, 2011.",
+];
+const refSection = [
+  new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: true, children: [new TextRun({ text: "参考文献", font: HEI })] }),
+  ...refs.map((r, i) => new Paragraph({ spacing: { line: 320, after: 60 }, indent: { left: 420, hanging: 420 }, children: [t(`[${i + 1}] ${r}`, { size: SMALL })] })),
+];
+const appendix = [
+  new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: true, children: [new TextRun({ text: "附录A 提交材料与运行说明", font: HEI })] }),
+  H2("A.1 提交材料清单"),
+  tableCaption("表A-1 提交材料"),
+  table(["材料", "位置", "说明"], [
+    ["源代码", "course_code/", "本文编写的全部脚本、数据集配置与依赖清单"],
+    ["官方代码", "YOLO-Master/", "官方仓库（commit c73e537），未修改"],
+    ["样本集（训练集）", "datasets/construction-ppe/images|labels/train", "1132 张图像及 YOLO 格式标注"],
+    ["验证集", "datasets/construction-ppe/images|labels/val", "143 张图像及标注"],
+    ["测试集", "datasets/construction-ppe/images|labels/test", "141 张图像及标注"],
+    ["预训练权重", "weights/", "官方发布的 YOLO-Master 权重"],
+    ["场景模型", `results/ppe/${FINAL}/weights/best.pt`, "最终场景应用模型"],
+    ["实验结果", "results/", "COCO 评估、训练曲线、测试、消融、告警分析、演示图片"],
+    ["文档", "report/", "本文 Word 电子稿与 PDF 打印稿"],
+  ], [1.4, 3.2, 2.6]),
+  H2("A.2 运行步骤"),
+  ...numList([
+    "复现原论文指标：python course_code/eval_coco.py",
+    "场景训练：python course_code/train_ppe.py --model YOLO-Master-v0.1-N --cls-pw 0.5 --name YOLO-Master-v0.1-N-clspw0.5",
+    "测试集评估：python course_code/test_ppe.py",
+    "消融与告警分析：python course_code/ablation_routing.py；python course_code/alarm_analysis.py",
+    "违规告警演示：python course_code/ppe_demo.py --weights <best.pt> --source <图片/视频/0>",
+    "生成图表：python course_code/make_figures.py",
+  ]),
+];
+
+// ------------------------------------------------------------------ document
+const body = [...abstract, ...toc, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...refSection, ...appendix];
+const numCfg = (ref) => ({ reference: ref, levels: [{ level: 0, format: LevelFormat.DECIMAL, text: "(%1)", alignment: AlignmentType.LEFT,
+  style: { paragraph: { indent: { left: 840, hanging: 420 } } } }] });
+const margin = { top: 1418, bottom: 1418, left: 1418, right: 1418 };
+const page = { size: { width: 11906, height: 16838 }, margin };
+const doc = new Document({
+  creator: "Course Design", title: TITLE, features: { updateFields: true },
+  styles: {
+    default: { document: { run: { font: SONG, size: BODY } } },
+    paragraphStyles: [
+      { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { font: HEI, size: H1_SIZE, bold: true }, paragraph: { alignment: AlignmentType.CENTER, spacing: { before: 240, after: 300 }, keepNext: true, outlineLevel: 0 } },
+      { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { font: HEI, size: H2_SIZE, bold: true }, paragraph: { spacing: { before: 240, after: 120 }, keepNext: true, outlineLevel: 1 } },
+      { id: "Heading3", name: "Heading 3", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { font: HEI, size: H2_SIZE, bold: false }, paragraph: { spacing: { before: 160, after: 80 }, keepNext: true, outlineLevel: 2 } },
+    ],
+  },
+  numbering: { config: [
+    { reference: "bul", levels: [{ level: 0, format: LevelFormat.BULLET, text: "●", alignment: AlignmentType.LEFT,
+      style: { paragraph: { indent: { left: 840, hanging: 360 } }, run: { size: 16 } } }] },
+    ...NUM_REFS.map(numCfg),
+  ] },
+  sections: [
+    { properties: { page }, children: cover },
+    {
+      properties: { type: SectionType.NEXT_PAGE, page: { ...page, pageNumbers: { start: 1 } } },
+      headers: { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
+        border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "000000", space: 1 } },
+        children: [new TextRun({ text: TITLE, font: SONG, size: 18 })] })] }) },
+      footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
+        children: [new TextRun({ children: [PageNumber.CURRENT], font: SONG, size: 18 })] })] }) },
+      children: spaceAfterTables(body),
+    },
+  ],
+});
+
+Packer.toBuffer(doc).then((buf) => {
+  fs.writeFileSync(OUT, buf);
+  console.log(`saved ${OUT}\nfinal model: ${FINAL}  weighted run complete: ${haveW}  routing rows: ${routing.length}  alarm rows: ${Object.keys(alarm).length}`);
+  if (figMissing.length) console.log(`missing figures: ${figMissing.join(", ")}`);
+});

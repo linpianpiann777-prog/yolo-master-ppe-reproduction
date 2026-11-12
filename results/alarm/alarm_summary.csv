@@ -1,0 +1,7 @@
+model,threshold_rule,threshold,test_images,positives,precision,recall,F1,AUC
+YOLO-Master-v0.1-N,default conf 0.25,0.25,141,26,100.0,88.5,93.9,99.9
+YOLO-Master-v0.1-N,val-tuned,0.13,141,26,92.9,100.0,96.3,99.9
+YOLO-Master-v0.1-N-clspw0.5,default conf 0.25,0.25,141,26,100.0,80.8,89.4,100.0
+YOLO-Master-v0.1-N-clspw0.5,val-tuned,0.13,141,26,96.3,100.0,98.1,100.0
+YOLO-Master-EsMoE-N,default conf 0.25,0.25,141,26,100.0,92.3,96.0,100.0
+YOLO-Master-EsMoE-N,val-tuned,0.15,141,26,100.0,100.0,100.0,100.0

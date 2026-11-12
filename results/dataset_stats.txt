@@ -1,0 +1,6 @@
+﻿train images 1132 orphan_labels 10 boxes 9098
+   {'helmet': (1341, 830), 'gloves': (1146, 562), 'vest': (1269, 828), 'boots': (1235, 530), 'goggles': (419, 385), 'none': (651, 347), 'Person': (1770, 1067), 'no_helmet': (400, 232), 'no_goggle': (337, 216), 'no_gloves': (442, 190), 'no_boots': (88, 28)}
+val images 143 orphan_labels 0 boxes 1172
+   {'helmet': (201, 107), 'gloves': (136, 68), 'vest': (171, 109), 'boots': (151, 64), 'goggles': (47, 44), 'none': (81, 43), 'Person': (239, 139), 'no_helmet': (45, 27), 'no_goggle': (41, 25), 'no_gloves': (56, 23), 'no_boots': (4, 2)}
+test images 141 orphan_labels 0 boxes 1251
+   {'helmet': (192, 110), 'gloves': (163, 75), 'vest': (178, 111), 'boots': (211, 75), 'goggles': (52, 51), 'none': (65, 35), 'Person': (236, 133), 'no_helmet': (40, 24), 'no_goggle': (33, 24), 'no_gloves': (58, 23), 'no_boots': (23, 6)}

@@ -1,0 +1,7 @@
+﻿{"model": "YOLO-Master-v0.1-N", "threshold_rule": "default conf 0.25", "threshold": 0.25, "test_images": 141, "positives": 26, "precision": 100.0, "recall": 88.5, "F1": 93.9, "AUC": 99.9}
+{"model": "YOLO-Master-v0.1-N", "threshold_rule": "val-tuned", "threshold": 0.13, "test_images": 141, "positives": 26, "precision": 92.9, "recall": 100.0, "F1": 96.3, "AUC": 99.9}
+{"model": "YOLO-Master-v0.1-N-clspw0.5", "threshold_rule": "default conf 0.25", "threshold": 0.25, "test_images": 141, "positives": 26, "precision": 100.0, "recall": 80.8, "F1": 89.4, "AUC": 100.0}
+{"model": "YOLO-Master-v0.1-N-clspw0.5", "threshold_rule": "val-tuned", "threshold": 0.13, "test_images": 141, "positives": 26, "precision": 96.3, "recall": 100.0, "F1": 98.1, "AUC": 100.0}
+{"model": "YOLO-Master-EsMoE-N", "threshold_rule": "default conf 0.25", "threshold": 0.25, "test_images": 141, "positives": 26, "precision": 100.0, "recall": 92.3, "F1": 96.0, "AUC": 100.0}
+{"model": "YOLO-Master-EsMoE-N", "threshold_rule": "val-tuned", "threshold": 0.15, "test_images": 141, "positives": 26, "precision": 100.0, "recall": 100.0, "F1": 100.0, "AUC": 100.0}
+saved E:\yolo_course\results\alarm
