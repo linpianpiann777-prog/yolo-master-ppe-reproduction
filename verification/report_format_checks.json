@@ -1,5 +1,15 @@
 {
-  "toc_dot_leader_entries": 38,
+  "toc_indentation_twips_by_level": {
+    "1": 0,
+    "2": 420,
+    "3": 840
+  },
+  "toc_entries_by_level": {
+    "1": 9,
+    "2": 29,
+    "3": 12
+  },
+  "toc_dot_leader_entries": 50,
   "cover_title_pt": 42,
   "cover_fields_pt": 14,
   "font": "宋体",
@@ -12,7 +22,7 @@
   "three_line_data_tables": 8,
   "cover_form_preserved": true,
   "new_cross_reference_links": 41,
-  "total_internal_links": 79,
+  "total_internal_links": 91,
   "bookmark_targets": {
     "figure": 23,
     "table": 8,

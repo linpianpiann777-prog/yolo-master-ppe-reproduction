@@ -43,15 +43,23 @@ for p in paras:
  if pr.find(q('sectPr')) is not None:cover=False
 # Right-aligned page numbers use real tab stops with dot leaders, not typed dots.
 toc_count=0
+toc_levels={}
+def toc_layout(pr,name):
+ match=re.search(r'(\d+)$',name);level=int(match.group(1)) if match else 1
+ indent=child(pr,'ind');indent.attrib.clear();indent.set(q('left'),str((level-1)*420));indent.set(q('firstLine'),'0')
+ spacing=child(pr,'spacing');spacing.set(q('before'),'0');spacing.set(q('after'),'0');spacing.set(q('line'),'240');spacing.set(q('lineRule'),'exact')
+ return level
 for p in paras:
  pr=p.find(q('pPr'));sid=pr.find(q('pStyle')) if pr is not None else None
  name=style_names.get(sid.get(q('val')),'') if sid is not None else ''
  if name.startswith('toc') or name.startswith('目录'):
+  level=toc_layout(pr,name);toc_levels[level]=toc_levels.get(level,0)+1
   tabs=child(pr,'tabs')
   for old in list(tabs):tabs.remove(old)
   tab=E.SubElement(tabs,q('tab'));tab.set(q('val'),'right');tab.set(q('leader'),'dot');tab.set(q('pos'),'9070');toc_count+=1
 for st in styles.findall(q('style')):
  if style_names[st.get(q('styleId'))].startswith(('toc','目录')):
+  toc_layout(child(st,'pPr'),style_names[st.get(q('styleId'))])
   tabs=child(child(st,'pPr'),'tabs')
   for old in list(tabs):tabs.remove(old)
   tab=E.SubElement(tabs,q('tab'));tab.set(q('val'),'right');tab.set(q('leader'),'dot');tab.set(q('pos'),'9070')
@@ -154,5 +162,5 @@ for p in paras:
   rp=run.find(q('rPr'));assert rp.find(q('color')).get(q('val'))=='000000';assert rp.find(q('rFonts')).get(q('eastAsia'))=='宋体'
 course_links=sum(x.get(q('anchor'),'').startswith('Course_') for x in internal)
 assert course_links>=41 and len(alltables)>5
-result={'toc_dot_leader_entries':toc_count,'cover_title_pt':42,'cover_fields_pt':14,'font':'宋体','text_color':'000000','heading_1_pt':14,'heading_2_3_pt':12,'body_pt':10.5,'prose_first_line_indent_twips':420,'indented_paragraphs':prose,'three_line_data_tables':len(alltables)-1,'cover_form_preserved':True,'new_cross_reference_links':course_links,'total_internal_links':len(internal),'bookmark_targets':counts,'all_internal_destinations_valid':True}
+result={'toc_indentation_twips_by_level':{1:0,2:420,3:840},'toc_entries_by_level':toc_levels,'toc_dot_leader_entries':toc_count,'cover_title_pt':42,'cover_fields_pt':14,'font':'宋体','text_color':'000000','heading_1_pt':14,'heading_2_3_pt':12,'body_pt':10.5,'prose_first_line_indent_twips':420,'indented_paragraphs':prose,'three_line_data_tables':len(alltables)-1,'cover_form_preserved':True,'new_cross_reference_links':course_links,'total_internal_links':len(internal),'bookmark_targets':counts,'all_internal_destinations_valid':True}
 (R/'verification/report_format_checks.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(result,ensure_ascii=True))

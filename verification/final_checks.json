@@ -9,7 +9,7 @@
   "demo_images_reexecuted": 141,
   "demo_alert_images": 27,
   "release_assets_digest_verified": true,
-  "report_sha256": "763dd083541c3414ef32210e37bd8b3e6b10c17fe6d8d958492101d49be955b4",
-  "pdf_sha256": "aba2c4389cc95a061f41d9a0ed4e3f81537ce2c0762bc89d201e705aba996e16",
+  "report_sha256": "d8642fdf29e186faf1604a92f82090ec2007ed2c1a40a43f4f811461f6eb748a",
+  "pdf_sha256": "7d19c3046cf1c9d7c569f7f5901a09bbbd8eecd0ed766fbcea43c1fdeeaeeef5",
   "rendering": "Word COM PDF export; PDFium render; all 30 pages visually reviewed. Bundled LibreOffice renderer unavailable."
 }

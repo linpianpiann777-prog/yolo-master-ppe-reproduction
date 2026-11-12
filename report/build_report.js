@@ -163,8 +163,8 @@ const coverCell = (text, width, bottom = false) => new TableCell({
   width: { size: width, type: WidthType.DXA },
   borders: { top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
     bottom: { style: bottom ? BorderStyle.SINGLE : BorderStyle.NONE, size: bottom ? 4 : 0, color: "000000" } },
-  verticalAlign: VerticalAlign.CENTER, margins: { top: 220, bottom: 220, left: 100, right: 100 },
-  children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, before: 0, after: 0 },
+  verticalAlign: VerticalAlign.BOTTOM, margins: { top: 0, bottom: 0, left: 100, right: 100 },
+  children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { line: 360, lineRule: "exact", before: 0, after: 0 },
     children: [new TextRun({ text, font: SONG, size: 28, color: "000000", bold: true })] })],
 });
 const cover = [
@@ -178,7 +178,7 @@ const cover = [
       right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
     rows: [["课程名称", "神经网络与深度学习"], ["年    级", "24级"], ["班    级", "智科一班"],
       ["学    号", "2404120128"], ["姓    名", "刘炘扬"]].map(([label, value]) =>
-      new TableRow({ cantSplit: true, children: [coverCell(label, 2200), coverCell(value, 4600, true)] })) }),
+      new TableRow({ cantSplit: true, height: { value: 800, rule: "atLeast" }, children: [coverCell(label, 2200), coverCell(value, 4600, true)] })) }),
 ];
 
 // ------------------------------------------------------------------ abstract + TOC
@@ -193,7 +193,7 @@ const abstract = [
 const toc = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, pageBreakBefore: true,
     children: [new TextRun({ text: "目　录", font: HEI, size: H1_SIZE, bold: true })] }),
-  new TableOfContents("目录", { hyperlink: true, headingStyleRange: "1-2" }),
+  new TableOfContents("目录", { hyperlink: true, headingStyleRange: "1-3" }),
 ];
 
 // ------------------------------------------------------------------ chapter 1
